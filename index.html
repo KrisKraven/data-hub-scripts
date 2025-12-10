@@ -9,18 +9,16 @@
   <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
   <style>
     body { margin:0; font-family:system-ui,sans-serif; background:#f8f9fa; }
-    .topbar { background:#0b84ee; color:white; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:1000; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-    .topbar img { height:36px; border-radius:10px; }
-    .topbar strong { font-size:18px; }
-    .swipe { font-size:14px; opacity:0.9; }
+    .topbar { background:#0b84ee; color:white; padding:20px 16px; text-align:center; }
+    .topbar h1 { margin:0; font-size:28px; font-weight:bold; }
+    .swipe { font-size:22px; margin-top:8px; opacity:0.95; }
     .confirmed { text-align:center; padding:16px; font-size:18px; font-weight:bold; color:#0b84ee; background:#e3f2fd; margin:0; }
-    .card { background:white; margin:16px; padding:24px; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.08); text-align:center; }
+    .section { background:white; padding:24px; border-radius:16px; margin:20px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.08); }
     h3 { color:#0b84ee; margin:0 0 12px 0; }
     #streak-text { font-size:42px; font-weight:bold; color:#28a745; margin:12px 0; }
-    .bar-bg { background:#e0e0e0; height:28px; border-radius:14px; overflow:hidden; margin:16px 0; }
+    .bar-bg { background:#e0e0e0; border-radius:14px; height:28px; overflow:hidden; margin:16px 0; }
     #streak-bar { background:#28a745; height:100%; width:14.28%; transition:width 0.8s ease; }
-    .reward { font-size:16px; color:#555; margin-top:12px; }
-    .prompt { background:#e3f2fd; padding:24px; border-radius:16px; margin:20px; text-align:center; display:none; }
+    .prompt { background:#e3f2fd; padding:25px; border-radius:16px; margin:20px; text-align:center; display:none; }
     input { width:100%; padding:16px; margin:10px 0; border-radius:12px; border:1px solid #ccc; font-size:16px; box-sizing:border-box; }
     button { background:#0d6efd; color:white; padding:16px; border:none; border-radius:50px; font-weight:bold; font-size:18px; width:100%; margin-top:10px; }
     a.button { display:block; background:#0d6efd; color:white; padding:18px; border-radius:50px; text-decoration:none; font-weight:bold; font-size:18px; margin:20px; }
@@ -30,21 +28,18 @@
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <div style="display:flex;align-items:center;">
-    <img src="https://raw.githubusercontent.com/KrisKraven/data-hub-scripts/main/icon-512.png" alt="icon">
-    <strong>Data Hub</strong>
-  </div>
-  <div class="swipe">Swipe Down for Check-in ↓</div>
+  <h1>DATA HUB</h1>
+  <div class="swipe">Swipe down for check-in ✓</div>
 </div>
 
 <div class="confirmed">Confirmed ✓</div>
 
 <!-- STREAK -->
-<div class="card">
+<div class="section">
   <h3>Your Weekly Streak</h3>
   <div id="streak-text">Day 1</div>
   <div class="bar-bg"><div id="streak-bar"></div></div>
-  <p class="reward" id="streak-reward">Open 7 days in a row for 1 GB free data!</p>
+  <p id="streak-reward">Open 7 days in a row for 1 GB free data!</p>
 </div>
 
 <!-- ONE-TIME PROMPT -->
@@ -57,7 +52,7 @@
 </div>
 
 <!-- CHECK DATA BUTTON -->
-<div class="card">
+<div class="section">
   <h3>Check Your Remaining Data</h3>
   <a href="intent:#Intent;action=android.settings.DATA_USAGE_SETTINGS;end" class="button">
     Open Data Usage ➜
@@ -65,7 +60,7 @@
 </div>
 
 <script>
-// (Your full working script — unchanged except the visual IDs match above)
+// (Your full working script — unchanged)
 FingerprintJS.load().then(fp => {
   fp.get().then(result => {
     const deviceId = result.visitorId;
@@ -78,9 +73,9 @@ FingerprintJS.load().then(fp => {
       if (hash) {
         const params = new URLSearchParams(hash);
         const phone = params.get('phone') || params.get('number');
-        const sim   = params.get('sim') || params.get('simid') || params.get('iccid');
+        const sim   = params.get('sim')   || params.get('simid') || params.get('iccid');
         if (phone) { userPhone = phone.replace(/[^0-9]/g,''); localStorage.setItem('user_phone', userPhone); }
-        if (sim)   { userSim   = sim.toUpperCase(); localStorage.setItem('user_sim', userSim); }
+        if (sim)   { userSim   = sim.toUpperCase();          localStorage.setItem('user_sim',   userSim); }
         history.replaceState(null, null, window.location.pathname);
       }
     }
