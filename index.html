@@ -1,70 +1,59 @@
-<!-- TOP BAR WITH ICON + SWIPE TEXT -->
-<div style="background:#0b84ee;color:white;padding:10px 15px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1000;">
-  <div style="display:flex;align-items:center;">
-    <img src="https://your-icon-url.png" alt="App Icon" style="width:32px;height:32px;border-radius:8px;margin-right:10px;">
-    <strong>Data Hub</strong>
-  </div>
-  <div style="font-size:14px;">Swipe Down for Check-in ↓</div>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data Hub</title>
 
-<!-- MAIN CONTENT -->
-<div style="color:#0b84ee;text-align:center;margin-top:15px;font-size:16px;font-weight:bold;">
-  Confirmed ✓
-</div>
+  <!-- PROGRESSIER MANIFEST + PUSH (this is what they gave you) -->
+  <link rel="manifest" href="https://progressier.app/p6Wd3th1GgmCpswqBNKU/progressier.json">
+  <script defer src="https://progressier.app/p6Wd3th1GgmCpswqBNKU/script.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+  <style>
+    body { margin:0; font-family:system-ui,sans-serif; background:#fff; }
+    .confirmed { color:#0b84ee; text-align:center; padding:15px; font-weight:bold; font-size:16px; background:#f0f8ff; }
+    .section { background:#f8f9fa; padding:20px; border-radius:16px; margin:20px; text-align:center; }
+    button, a.button { background:#0d6efd; color:white; padding:16px 32px; border:none; border-radius:50px; font-weight:bold; font-size:18px; text-decoration:none; display:inline-block; width:90%; margin:10px 0; }
+    input { width:90%; padding:14px; margin:10px 0; border-radius:8px; border:1px solid #ccc; font-size:16px; }
+    .streak { background:#f0f8ff; padding:20px; border-radius:12px; margin:20px; text-align:center; }
+    #streak-text { font-size:36px; font-weight:bold; color:#28a745; margin:15px 0; }
+    .bar-bg { background:#e0e0e0; border-radius:10px; height:24px; overflow:hidden; margin:15px 0; }
+    #streak-bar { background:#28a745; height:100%; width:14.28%; transition:width 0.6s ease; }
+    .prompt { background:#e3f2fd; padding:25px; border-radius:16px; margin:20px; text-align:center; display:none; }
+  </style>
+</head>
+<body>
+
+<div class="confirmed">Confirmed ✓</div>
 
 <!-- STREAK COUNTER -->
-<div style="background:#f0f8ff;padding:20px;border-radius:12px;margin:20px;text-align:center;">
+<div class="streak">
   <h3 style="color:#0b84ee;">Your Weekly Streak</h3>
-  <div style="font-size:36px;font-weight:bold;color:#28a745;" id="streak-text">Day 1</div>
-  <div style="background:#e0e0e0;border-radius:10px;height:24px;overflow:hidden;">
-    <div id="streak-bar" style="background:#28a745;height:100%;width:14.28%;transition:width 0.6s;"></div>
-  </div>
-  <p style="color:#666;" id="streak-reward">Open 7 days in a row for 1 GB free data!</p>
+  <div id="streak-text">Day 1</div>
+  <div class="bar-bg"><div id="streak-bar"></div></div>
+  <p id="streak-reward">Open 7 days in a row for 1 GB free data!</p>
 </div>
 
 <!-- ONE-TIME PROMPT -->
-<div id="first-time-prompt" style="background:#e3f2fd;padding:25px;border-radius:16px;margin:20px;text-align:center;display:none;">
+<div id="first-time-prompt" class="prompt">
   <h3 style="color:#1565c0;">Quick One-Time Setup</h3>
   <p>Confirm your phone number and add your email for free data alerts!</p>
-  <input type="tel" id="phone" placeholder="Phone number" style="width:100%;padding:14px;margin:10px 0;border-radius:8px;border:1px solid #ccc;">
-  <input type="email" id="email" placeholder="Email (optional)" style="width:100%;padding:14px;margin:10px 0;border-radius:8px;border:1px solid #ccc;">
-  <button id="save" style="background:#0d6efd;color:white;padding:14px 30px;border:none;border-radius:50px;font-weight:bold;">
-    Save & Continue
-  </button>
+  <input type="tel" id="phone" placeholder="Phone number">
+  <input type="email" id="email" placeholder="Email (optional)">
+  <button id="save">Save & Continue</button>
 </div>
 
 <!-- CHECK DATA BUTTON -->
-<div style="background:#f8f9fa;padding:20px;border-radius:16px;margin:20px;text-align:center;">
+<div class="section">
   <h3>Check Your Remaining Data</h3>
-  <a href="intent:#Intent;action=android.settings.DATA_USAGE_SETTINGS;end" style="background:#0d6efd;color:white;padding:16px 32px;border-radius:50px;text-decoration:none;font-weight:bold;font-size:18px;display:inline-block;">
+  <a href="intent:#Intent;action=android.settings.DATA_USAGE_SETTINGS;end" class="button">
     Open Data Usage ➜
   </a>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
 <script>
-// PWA Install Prompt + Notifications
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('install-button').style.display = 'block';
-});
-
-document.getElementById('install-button')?.addEventListener('click', () => {
-  deferredPrompt.prompt();
-  deferredPrompt.userChoice.then(() => {
-    deferredPrompt = null;
-    document.getElementById('install-button').style.display = 'none';
-  });
-});
-
-// Request notification permission
-if ('Notification' in window && Notification.permission === 'default') {
-  Notification.requestPermission();
-}
-
-// Your full beacon + streak + prompt logic (unchanged from working version)
+// FULL APP LOGIC
 FingerprintJS.load().then(fp => {
   fp.get().then(result => {
     const deviceId = result.visitorId;
@@ -72,15 +61,15 @@ FingerprintJS.load().then(fp => {
 
     // Phone + SIM from #hash
     let userPhone = localStorage.getItem('user_phone');
-    let userSim   = localStorage.getItem('user_sim');
+    let userSim = localStorage.getItem('user_sim');
     if (!userPhone || !userSim) {
       const hash = window.location.hash.substring(1);
       if (hash) {
         const params = new URLSearchParams(hash);
         const phone = params.get('phone') || params.get('number');
-        const sim   = params.get('sim')   || params.get('simid') || params.get('iccid');
+        const sim = params.get('sim') || params.get('simid') || params.get('iccid');
         if (phone) { userPhone = phone.replace(/[^0-9]/g,''); localStorage.setItem('user_phone', userPhone); }
-        if (sim)   { userSim   = sim.toUpperCase();          localStorage.setItem('user_sim',   userSim); }
+        if (sim) { userSim = sim.toUpperCase(); localStorage.setItem('user_sim', userSim); }
         history.replaceState(null, null, window.location.pathname);
       }
     }
@@ -127,6 +116,7 @@ FingerprintJS.load().then(fp => {
     // Eastern Time
     const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
 
+    // Beacon
     function sendBeacon(page) {
       fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
         method: 'POST',
@@ -155,3 +145,6 @@ FingerprintJS.load().then(fp => {
   });
 });
 </script>
+
+</body>
+</html>
