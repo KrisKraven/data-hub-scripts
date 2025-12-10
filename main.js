@@ -1,24 +1,29 @@
-// FINAL — ONE FILE LOADED VIA <script src> — WORKS 100% IN BEEZER
-// Confirmed + Prompt + Streak + Beacon + Eastern Time + Phone/SIM
+// DATA HUB — FULL PRODUCTION SCRIPT (2025)
+// Loaded via <script src> from GitHub — no Beezer blocking
 
 // Confirmed message
-document.body.insertAdjacentHTML('afterbegin', '<div style="color:#0b84ee;text-align:center;margin-top:15px;font-size:16px;font-weight:bold;">Confirmed ✓</div>');
+const confirmed = document.createElement('div');
+confirmed.innerHTML = '<div style="color:#0b84ee;text-align:center;margin-top:15px;font-size:16px;font-weight:bold;">Confirmed ✓</div>';
+document.body.prepend(confirmed);
 
 // Streak visual
-document.body.insertAdjacentHTML('beforeend', `
-<div style="background:#f0f8ff;padding:20px;border-radius:12px;margin:20px 0;text-align:center;">
+const streakDiv = document.createElement('div');
+streakDiv.style = 'background:#f0f8ff;padding:20px;border-radius:12px;margin:20px 0;text-align:center;';
+streakDiv.innerHTML = `
   <h3 style="color:#0b84ee;margin-bottom:10px;">Your Weekly Streak</h3>
   <div style="font-size:36px;font-weight:bold;color:#28a745;margin:15px 0;" id="streak-text">Day 1</div>
   <div style="background:#e0e0e0;border-radius:10px;height:24px;overflow:hidden;">
     <div id="streak-bar" style="background:#28a745;height:100%;width:14.28%;transition:width 0.6s ease;"></div>
   </div>
   <p style="color:#666;font-size:15px;" id="streak-reward">Open 7 days in a row for 1 GB free data!</p>
-</div>
-`);
+`;
+document.body.appendChild(streakDiv);
 
 // One-time prompt
-document.body.insertAdjacentHTML('beforeend', `
-<div id="first-time-prompt" style="background:#e3f2fd;padding:25px;border-radius:16px;margin:20px 0;text-align:center;display:none;">
+const promptDiv = document.createElement('div');
+promptDiv.id = 'first-time-prompt';
+promptDiv.style = 'background:#e3f2fd;padding:25px;border-radius:16px;margin:20px 0;text-align:center;display:none;';
+promptDiv.innerHTML = `
   <h3 style="color:#1565c0;">Quick One-Time Setup</h3>
   <p>Confirm your phone number and add your email for free data alerts!</p>
   <input type="tel" id="phone" placeholder="Phone number" style="width:100%;padding:14px;margin:10px 0;border-radius:8px;border:1px solid #ccc;">
@@ -26,9 +31,21 @@ document.body.insertAdjacentHTML('beforeend', `
   <button id="save" style="background:#0d6efd;color:white;padding:14px 30px;border:none;border-radius:50px;font-weight:bold;">
     Save & Continue
   </button>
-</div>
-`);
+`;
+document.body.appendChild(promptDiv);
 
+// Check data button
+const dataButton = document.createElement('div');
+dataButton.style = 'background:#f8f9fa;padding:20px;border-radius:16px;text-align:center;margin:20px 0;';
+dataButton.innerHTML = `
+  <h3 style="margin:10px 0;color:#333;">Check Your Remaining Data</h3>
+  <a href="intent:#Intent;action=android.settings.DATA_USAGE_SETTINGS;end" style="background:#0d6efd;color:white;padding:16px 32px;border-radius:50px;text-decoration:none;font-weight:bold;font-size:18px;display:inline-block;">
+    Open Data Usage ➜
+  </a>
+`;
+document.body.appendChild(dataButton);
+
+// Main script
 const fpPromise = import('https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js')
   .then(FingerprintJS => FingerprintJS.load());
 
@@ -38,15 +55,15 @@ fpPromise.then(fp => fp.get()).then(result => {
 
   // Phone + SIM from #hash
   let userPhone = localStorage.getItem('user_phone');
-  let userSim   = localStorage.getItem('user_sim');
+  let userSim = localStorage.getItem('user_sim');
   if (!userPhone || !userSim) {
     const hash = window.location.hash.substring(1);
     if (hash) {
       const params = new URLSearchParams(hash);
       const phone = params.get('phone') || params.get('number');
-      const sim   = params.get('sim')   || params.get('simid') || params.get('iccid');
+      const sim = params.get('sim') || params.get('simid') || params.get('iccid');
       if (phone) { userPhone = phone.replace(/[^0-9]/g,''); localStorage.setItem('user_phone', userPhone); }
-      if (sim)   { userSim   = sim.toUpperCase();          localStorage.setItem('user_sim',   userSim); }
+      if (sim) { userSim = sim.toUpperCase(); localStorage.setItem('user_sim', userSim); }
       history.replaceState(null, null, window.location.pathname);
     }
   }
@@ -72,7 +89,7 @@ fpPromise.then(fp => fp.get()).then(result => {
   const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   const net = conn ? (conn.effectiveType || conn.type || 'unknown') : 'unknown';
 
-  // STREAK
+  // STREAK COUNTER
   const streakKey = 'weekly_streak_' + deviceId;
   let streak = parseInt(localStorage.getItem(streakKey)) || 0;
   const lastCheckDate = localStorage.getItem(streakKey + '_date');
@@ -93,7 +110,6 @@ fpPromise.then(fp => fp.get()).then(result => {
   // Eastern Time
   const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
 
-  // Beacon
   function sendBeacon(page) {
     fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
       method: 'POST',
@@ -103,7 +119,7 @@ fpPromise.then(fp => fp.get()).then(result => {
         sim_id:    userSim   || 'unknown',
         t:         easternTime,
         p:         page,
-        s:         'data_hub',   // ← change to 'safety_hub' in Safety Hub
+        s:         'data_hub',   // change to 'safety_hub' in Safety Hub
         ua:        navigator.userAgent,
         o:         navigator.onLine,
         n:         net,
@@ -120,3 +136,4 @@ fpPromise.then(fp => fp.get()).then(result => {
     localStorage.setItem('last_ping', Date.now());
   }
 });
+</script>
