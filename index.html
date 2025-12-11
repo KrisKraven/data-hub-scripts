@@ -4,22 +4,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Data Hub</title>
-  <link rel="manifest" href="https://progressier.app/p6Wd3th1GgmCpswqBNKU/progressier.json">
-  <script defer src="https://progressier.app/p6Wd3th1GgmCpswqBNKU/script.js"></script>
+  <link rel="manifest" href="manifest.json">
   <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
   <style>
     body { margin:0; font-family:system-ui,sans-serif; background:#f8f9fa; }
     .topbar { background:#0b84ee; color:white; padding:20px; text-align:center; }
     .topbar h1 { margin:0; font-size:28px; font-weight:bold; }
     .swipe { font-size:20px; margin-top:8px; }
-    .confirmed { text-align:center; padding:16px; font-size:18px; font-weight:bold; color:#0b84ee; background:#e3f2fd; }
+    .tabs { display:flex; background:white; border-bottom:1px solid #ddd; position:sticky; top:0; z-index:1000; }
+    .tab { flex:1; padding:16px; text-align:center; font-weight:bold; color:#666; }
+    .tab.active { color:#0b84ee; border-bottom:3px solid #0b84ee; }
+    .content { display:none; padding:20px; }
+    .content.active { display:block; }
+    .confirmed { text-align:center; padding:16px; font-size:18px; font-weight:bold; color:#0b84ee; background:#e3f2fd; margin:0; }
     .section { background:white; padding:24px; border-radius:16px; margin:20px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.08); }
     h3 { color:#0b84ee; margin:0 0 12px 0; }
     #streak-text { font-size:42px; font-weight:bold; color:#28a745; margin:12px 0; }
     .bar-bg { background:#e0e0e0; border-radius:14px; height:28px; overflow:hidden; margin:16px 0; }
     #streak-bar { background:#28a745; height:100%; width:14.28%; transition:width 0.8s ease; }
     .prompt { background:#e3f2fd; padding:25px; border-radius:16px; margin:20px; text-align:center; display:none; }
-    input { width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1px solid #ccc; font-size:16px; box-sizing:border-box; }
+    input { width:100%; padding:16px; margin:10px 0; border-radius:12px; border:1px solid #ccc; font-size:16px; box-sizing:border-box; }
     button { background:#0d6efd; color:white; padding:16px; border:none; border-radius:50px; font-weight:bold; font-size:18px; width:100%; margin-top:10px; }
     a.button { display:block; background:#0d6efd; color:white; padding:18px; border-radius:50px; text-decoration:none; font-weight:bold; font-size:18px; margin:20px; }
   </style>
@@ -32,35 +36,60 @@
   <div class="swipe">Swipe down for check-in ✓</div>
 </div>
 
-<div class="confirmed">Confirmed ✓</div>
-
-<!-- STREAK COUNTER -->
-<div class="section">
-  <h3>Your Weekly Streak</h3>
-  <div id="streak-text">Day 1</div>
-  <div class="bar-bg"><div id="streak-bar"></div></div>
-  <p id="streak-reward">Open 7 days in a row for 1 GB free data!</p>
+<!-- TAB MENU -->
+<div class="tabs">
+  <div class="tab active" onclick="openTab('home')">Home</div>
+  <div class="tab" onclick="openTab('privacy')">Privacy Policy</div>
 </div>
 
-<!-- ONE-TIME PROMPT — BACK AND WORKING -->
-<div id="first-time-prompt" class="prompt">
-  <h3>Quick One-Time Setup</h3>
-  <p>Confirm your phone number and add your email for free data alerts!</p>
-  <input type="tel" id="phone" placeholder="Phone number">
-  <input type="email" id="email" placeholder="Email (optional)">
-  <button id="save">Save & Continue</button>
+<!-- TAB CONTENT -->
+<div id="home" class="content active">
+  <div class="confirmed">Confirmed ✓</div>
+
+  <!-- STREAK COUNTER -->
+  <div class="section">
+    <h3>Your Weekly Streak</h3>
+    <div id="streak-text">Day 1</div>
+    <div class="bar-bg"><div id="streak-bar"></div></div>
+    <p id="streak-reward">Open 7 days in a row for 1 GB free data!</p>
+  </div>
+
+  <!-- ONE-TIME PROMPT -->
+  <div id="first-time-prompt" class="prompt">
+    <h3>Quick One-Time Setup</h3>
+    <p>Confirm your phone number and add your email for free data alerts!</p>
+    <input type="tel" id="phone" placeholder="Phone number">
+    <input type="email" id="email" placeholder="Email (optional)">
+    <button id="save">Save & Continue</button>
+  </div>
+
+  <!-- CHECK DATA BUTTON -->
+  <div class="section">
+    <h3>Check Your Remaining Data</h3>
+    <a href="intent:#Intent;action=android.settings.DATA_USAGE_SETTINGS;end" class="button">
+      Open Data Usage ➜
+    </a>
+  </div>
 </div>
 
-<!-- CHECK DATA BUTTON -->
-<div class="section">
-  <h3>Check Your Remaining Data</h3>
-  <a href="intent:#Intent;action=android.settings.DATA_USAGE_SETTINGS;end" class="button">
-    Open Data Usage ➜
-  </a>
+<!-- PRIVACY POLICY TAB -->
+<div id="privacy" class="content">
+  <div class="section">
+    <h3>Privacy Policy</h3>
+    <p> [Paste your privacy policy verbiage here] </p>
+  </div>
 </div>
 
 <script>
-// FULL APP LOGIC — EVERYTHING WORKING
+// TAB MENU FUNCTION
+function openTab(tabName) {
+  document.querySelectorAll('.content').forEach(tab => tab.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+  document.getElementById(tabName).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// FULL APP LOGIC
 FingerprintJS.load().then(fp => {
   fp.get().then(result => {
     const deviceId = result.visitorId;
@@ -74,9 +103,9 @@ FingerprintJS.load().then(fp => {
       if (hash) {
         const params = new URLSearchParams(hash);
         const phone = params.get('phone') || params.get('number');
-        const sim   = params.get('sim') || params.get('simid') || params.get('iccid');
+        const sim   = params.get('sim')   || params.get('simid') || params.get('iccid');
         if (phone) { userPhone = phone.replace(/[^0-9]/g,''); localStorage.setItem('user_phone', userPhone); }
-        if (sim)   { userSim   = sim.toUpperCase();          localStorage.setItem('user_sim',   userSim); }
+        if (sim) { userSim = sim.toUpperCase(); localStorage.setItem('user_sim', userSim); }
         history.replaceState(null, null, window.location.pathname);
       }
     }
@@ -125,7 +154,7 @@ FingerprintJS.load().then(fp => {
 
     // Beacon
     function sendBeacon(page) {
-      fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
+      fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u4u71v6y2b6u9bpm', {
         method: 'POST',
         body: JSON.stringify({
           device_id: deviceId,
@@ -146,4 +175,12 @@ FingerprintJS.load().then(fp => {
 
     const lastPing = localStorage.getItem('last_ping') || 0;
     if (Date.now() - lastPing > 23*60*60*1000) {
-      send
+      sendBeacon('daily_ping');
+      localStorage.setItem('last_ping', Date.now());
+    }
+  });
+});
+</script>
+
+</body>
+</html>
