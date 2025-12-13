@@ -131,24 +131,39 @@ FingerprintJS.load().then(fp => {
     if (!localStorage.getItem('user_info_saved')) {
       document.getElementById('first-time-prompt').style.display = 'block';
     }
-    document.getElementById('save')?.addEventListener('click', function() {
-      const firstName = document.getElementById('first-name').value.trim();
-    const lastName = document.getElementById('last-name').value.trim();
-    const phone = document.getElementById('phone').value.replace(/[^0-9]/g,'');
-    const email = document.getElementById('email').value.trim();
-    if (phone.length >= 10) {
-      localStorage.setItem('user_first_name', firstName);
-      localStorage.setItem('user_last_name', lastName);
-      localStorage.setItem('user_phone_verified', phone);
-      if (email) localStorage.setItem('user_email', email);
-      localStorage.setItem('user_info_saved', 'true');
-      document.getElementById('first-time-prompt').style.display = 'none';
-      alert('Saved! You’re all set.');
-    } else {
-      alert('Valid phone required');
-    }
-  });
+      document.getElementById('save')?.addEventListener('click', function() {
+        const firstName = document.getElementById('first-name').value.trim();
+        const lastName = document.getElementById('last-name').value.trim();
+        const phone = document.getElementById('phone').value.replace(/[^0-9]/g,'');
+        const email = document.getElementById('email').value.trim();
+        if (phone.length >= 10) {
+          localStorage.setItem('user_first_name', firstName);
+          localStorage.setItem('user_last_name', lastName);
+          localStorage.setItem('user_phone_verified', phone);
+          if (email) localStorage.setItem('user_email', email);
+          localStorage.setItem('user_info_saved', 'true');
+          document.getElementById('first-time-prompt').style.display = 'none';
+          alert('Saved! You’re all set.');
 
+          // SEND PROMPT DATA TO MAKE.COM
+          const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
+          fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
+            method: 'POST',
+            body: JSON.stringify({
+              device_id: deviceId,
+              first_name: firstName,
+              last_name: lastName,
+              phone_verified: phone,
+              email: email || 'none',
+              t: easternTime,
+              p: 'user_info_submitted',
+              s: 'data_hub'
+            })
+          });
+        } else {
+          alert('Valid phone required');
+        }
+      });
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     const net = conn ? (conn.effectiveType || conn.type || 'unknown') : 'unknown';
 
