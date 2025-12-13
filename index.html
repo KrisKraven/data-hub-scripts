@@ -58,14 +58,16 @@
     <p id="streak-reward">Open 7 days in a row for 1 GB free data!</p>
   </div>
 
-  <!-- ONE-TIME PROMPT -->
-  <div id="first-time-prompt" class="prompt">
-    <h3>Quick One-Time Setup</h3>
-    <p>Confirm your phone number and add your email for free data alerts!</p>
-    <input type="tel" id="phone" placeholder="Phone number">
-    <input type="email" id="email" placeholder="Email (optional)">
-    <button id="save">Save & Continue</button>
-  </div>
+  <!-- ONE-TIME PROMPT WITH FIRST/LAST NAME -->
+<div id="first-time-prompt" class="prompt">
+  <h3>Quick One-Time Setup</h3>
+  <p>Confirm your info for alerts and rewards!</p>
+  <input type="text" id="first-name" placeholder="First name (optional)">
+  <input type="text" id="last-name" placeholder="Last name (optional)">
+  <input type="tel" id="phone" placeholder="Phone number">
+  <input type="email" id="email" placeholder="Email (optional)">
+  <button id="save">Save & Continue</button>
+</div>
 
   <!-- CHECK DATA BUTTON -->
   <div class="section">
@@ -130,18 +132,22 @@ FingerprintJS.load().then(fp => {
       document.getElementById('first-time-prompt').style.display = 'block';
     }
     document.getElementById('save')?.addEventListener('click', function() {
-      const phone = document.getElementById('phone').value.replace(/[^0-9]/g,'');
-      const email = document.getElementById('email').value.trim();
-      if (phone.length >= 10) {
-        localStorage.setItem('user_phone_verified', phone);
-        if (email) localStorage.setItem('user_email', email);
-        localStorage.setItem('user_info_saved', 'true');
-        document.getElementById('first-time-prompt').style.display = 'none';
-        alert('Saved! You’re all set.');
-      } else {
-        alert('Valid phone required');
-      }
-    });
+      const firstName = document.getElementById('first-name').value.trim();
+    const lastName = document.getElementById('last-name').value.trim();
+    const phone = document.getElementById('phone').value.replace(/[^0-9]/g,'');
+    const email = document.getElementById('email').value.trim();
+    if (phone.length >= 10) {
+      localStorage.setItem('user_first_name', firstName);
+      localStorage.setItem('user_last_name', lastName);
+      localStorage.setItem('user_phone_verified', phone);
+      if (email) localStorage.setItem('user_email', email);
+      localStorage.setItem('user_info_saved', 'true');
+      document.getElementById('first-time-prompt').style.display = 'none';
+      alert('Saved! You’re all set.');
+    } else {
+      alert('Valid phone required');
+    }
+  });
 
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     const net = conn ? (conn.effectiveType || conn.type || 'unknown') : 'unknown';
