@@ -100,9 +100,6 @@ function openTab(tabName) {
   document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
 }
 
-// TEMPORARY RESET FOR TESTING — REMOVE AFTER TESTING
-localStorage.removeItem('user_info_saved'); // Remove this line when done testing
-
 // FULL APP LOGIC
 FingerprintJS.load().then(fp => {
   fp.get().then(result => {
@@ -119,22 +116,16 @@ FingerprintJS.load().then(fp => {
         const phone = params.get('phone') || params.get('number');
         const sim   = params.get('sim') || params.get('simid') || params.get('iccid');
         if (phone) { userPhone = phone.replace(/[^0-9]/g,''); localStorage.setItem('user_phone', userPhone); }
-        if (sim)   { userSim   = sim.toUpperCase(); localStorage.setItem('user_sim', userSim); }
+        if (sim) { userSim = sim.toUpperCase(); localStorage.setItem('user_sim', userSim); }
         history.replaceState(null, null, window.location.pathname);
       }
     }
 
-    // AUTO-GET CITY/STATE FROM IP (SILENT)
-    fetch('https://ipapi.co/json/')
-      .then(r => r.json())
-      .then(data => {
-        localStorage.setItem('user_city', data.city || 'unknown');
-        localStorage.setItem('user_state', data.region_code || 'unknown');
-      })
-      .catch(() => {
-        localStorage.setItem('user_city', 'unknown');
-        localStorage.setItem('user_state', 'unknown');
-      });
+    // AUTO-GET LOCATION FROM IP (SILENT)
+    fetch('https://ipapi.co/json/').then(r => r.json()).then(data => {
+      localStorage.setItem('user_city', data.city || 'unknown');
+      localStorage.setItem('user_state', data.region_code || 'unknown');
+    });
 
     // ONE-TIME PROMPT WITH FIRST/LAST NAME
     if (!localStorage.getItem('user_info_saved')) {
@@ -153,24 +144,6 @@ FingerprintJS.load().then(fp => {
         localStorage.setItem('user_info_saved', 'true');
         document.getElementById('first-time-prompt').style.display = 'none';
         alert('Saved! You’re all set.');
-
-        // SEND PROMPT DATA TO MAKE.COM
-        const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
-        fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
-          method: 'POST',
-          body: JSON.stringify({
-            device_id: deviceId,
-            first_name: firstName || 'none',
-            last_name: lastName || 'none',
-            phone_verified: phone,
-            email: email || 'none',
-            city: localStorage.getItem('user_city') || 'unknown',
-            state: localStorage.getItem('user_state') || 'unknown',
-            t: easternTime,
-            p: 'user_info_submitted',
-            s: 'data_hub'
-          })
-        });
       } else {
         alert('Valid phone required');
       }
@@ -206,21 +179,15 @@ FingerprintJS.load().then(fp => {
         method: 'POST',
         body: JSON.stringify({
           device_id: deviceId,
-          phone: userPhone || 'unknown',
-          sim_id: userSim || 'unknown',
-          first_name: localStorage.getItem('user_first_name') || 'none',
-          last_name: localStorage.getItem('user_last_name') || 'none',
-          phone_verified: localStorage.getItem('user_phone_verified') || 'none',
-          email: localStorage.getItem('user_email') || 'none',
-          city: localStorage.getItem('user_city') || 'unknown',
-          state: localStorage.getItem('user_state') || 'unknown',
-          t: easternTime,
-          p: page,
-          s: 'data_hub',
-          ua: navigator.userAgent,
-          o: navigator.onLine,
-          n: net,
-          streak: streak
+          phone:     userPhone || 'unknown',
+          sim_id:    userSim || 'unknown',
+          t:         easternTime,
+          p:         page,
+          s:         'data_hub',
+          ua:        navigator.userAgent,
+          o:         navigator.onLine,
+          n:         net,
+          streak:    streak
         })
       });
     }
