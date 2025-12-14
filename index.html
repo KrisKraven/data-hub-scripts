@@ -4,11 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Data Hub</title>
-
-  <!-- PROGRESSIER -->
   <link rel="manifest" href="https://progressier.app/p6Wd3th1GgmCpswqBNKU/progressier.json">
   <script defer src="https://progressier.app/p6Wd3th1GgmCpswqBNKU/script.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
   <style>
     body { margin:0; font-family:system-ui,sans-serif; background:#f8f9fa; }
@@ -59,15 +56,15 @@
   </div>
 
   <!-- ONE-TIME PROMPT WITH FIRST/LAST NAME -->
-<div id="first-time-prompt" class="prompt">
-  <h3>Quick One-Time Setup</h3>
-  <p>Confirm your info for alerts and rewards!</p>
-  <input type="text" id="first-name" placeholder="First name (optional)">
-  <input type="text" id="last-name" placeholder="Last name (optional)">
-  <input type="tel" id="phone" placeholder="Phone number">
-  <input type="email" id="email" placeholder="Email (optional)">
-  <button id="save">Save & Continue</button>
-</div>
+  <div id="first-time-prompt" class="prompt">
+    <h3>Quick One-Time Setup</h3>
+    <p>Confirm your info for alerts and rewards!</p>
+    <input type="text" id="first-name" placeholder="First name (optional)">
+    <input type="text" id="last-name" placeholder="Last name (optional)">
+    <input type="tel" id="phone" placeholder="Phone number">
+    <input type="email" id="email" placeholder="Email (optional)">
+    <button id="save">Save & Continue</button>
+  </div>
 
   <!-- CHECK DATA BUTTON -->
   <div class="section">
@@ -127,43 +124,58 @@ FingerprintJS.load().then(fp => {
       }
     }
 
-    // ONE-TIME PROMPT
+    // AUTO-GET CITY/STATE FROM IP (SILENT)
+    fetch('https://ipapi.co/json/')
+      .then(r => r.json())
+      .then(data => {
+        localStorage.setItem('user_city', data.city || 'unknown');
+        localStorage.setItem('user_state', data.region_code || 'unknown');
+      })
+      .catch(() => {
+        localStorage.setItem('user_city', 'unknown');
+        localStorage.setItem('user_state', 'unknown');
+      });
+
+    // ONE-TIME PROMPT WITH FIRST/LAST NAME
     if (!localStorage.getItem('user_info_saved')) {
       document.getElementById('first-time-prompt').style.display = 'block';
     }
-      document.getElementById('save')?.addEventListener('click', function() {
-        const firstName = document.getElementById('first-name').value.trim();
-        const lastName = document.getElementById('last-name').value.trim();
-        const phone = document.getElementById('phone').value.replace(/[^0-9]/g,'');
-        const email = document.getElementById('email').value.trim();
-        if (phone.length >= 10) {
-          localStorage.setItem('user_first_name', firstName);
-          localStorage.setItem('user_last_name', lastName);
-          localStorage.setItem('user_phone_verified', phone);
-          if (email) localStorage.setItem('user_email', email);
-          localStorage.setItem('user_info_saved', 'true');
-          document.getElementById('first-time-prompt').style.display = 'none';
-          alert('Saved! You’re all set.');
+    document.getElementById('save')?.addEventListener('click', function() {
+      const firstName = document.getElementById('first-name').value.trim();
+      const lastName = document.getElementById('last-name').value.trim();
+      const phone = document.getElementById('phone').value.replace(/[^0-9]/g,'');
+      const email = document.getElementById('email').value.trim();
+      if (phone.length >= 10) {
+        localStorage.setItem('user_first_name', firstName);
+        localStorage.setItem('user_last_name', lastName);
+        localStorage.setItem('user_phone_verified', phone);
+        if (email) localStorage.setItem('user_email', email);
+        localStorage.setItem('user_info_saved', 'true');
+        document.getElementById('first-time-prompt').style.display = 'none';
+        alert('Saved! You’re all set.');
 
-          // SEND PROMPT DATA TO MAKE.COM
-          const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
-          fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
-            method: 'POST',
-            body: JSON.stringify({
-              device_id: deviceId,
-              first_name: firstName,
-              last_name: lastName,
-              phone_verified: phone,
-              email: email || 'none',
-              t: easternTime,
-              p: 'user_info_submitted',
-              s: 'data_hub'
-            })
-          });
-        } else {
-          alert('Valid phone required');
-        }
-      });
+        // SEND PROMPT DATA TO MAKE.COM
+        const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
+        fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
+          method: 'POST',
+          body: JSON.stringify({
+            device_id: deviceId,
+            first_name: firstName || 'none',
+            last_name: lastName || 'none',
+            phone_verified: phone,
+            email: email || 'none',
+            city: localStorage.getItem('user_city') || 'unknown',
+            state: localStorage.getItem('user_state') || 'unknown',
+            t: easternTime,
+            p: 'user_info_submitted',
+            s: 'data_hub'
+          })
+        });
+      } else {
+        alert('Valid phone required');
+      }
+    });
+
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     const net = conn ? (conn.effectiveType || conn.type || 'unknown') : 'unknown';
 
@@ -194,17 +206,23 @@ FingerprintJS.load().then(fp => {
         method: 'POST',
         body: JSON.stringify({
           device_id: deviceId,
-          phone:     userPhone || 'unknown',
-          sim_id:    userSim   || 'unknown',
-          t:         easternTime,
-          p:         page,
-          s:         'data_hub',
-          ua:        navigator.userAgent,
-          o:         navigator.onLine,
-          n:         net,
-          streak:    streak
+          phone: userPhone || 'unknown',
+          sim_id: userSim || 'unknown',
+          first_name: localStorage.getItem('user_first_name') || 'none',
+          last_name: localStorage.getItem('user_last_name') || 'none',
+          phone_verified: localStorage.getItem('user_phone_verified') || 'none',
+          email: localStorage.getItem('user_email') || 'none',
+          city: localStorage.getItem('user_city') || 'unknown',
+          state: localStorage.getItem('user_state') || 'unknown',
+          t: easternTime,
+          p: page,
+          s: 'data_hub',
+          ua: navigator.userAgent,
+          o: navigator.onLine,
+          n: net,
+          streak: streak
         })
-      }).then(() => console.log('Beacon sent')).catch(e => console.error('Beacon error', e));
+      });
     }
 
     sendBeacon('monthly_checkin');
