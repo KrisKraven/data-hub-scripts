@@ -30,23 +30,19 @@
   </style>
 </head>
 <body>
-
 <!-- TOP BAR -->
 <div class="topbar">
   <h1>DATA HUB</h1>
   <div class="swipe">Swipe down for check-in ✓</div>
 </div>
-
 <!-- TAB MENU -->
 <div class="tabs">
   <div class="tab active" onclick="openTab('home')">Home</div>
   <div class="tab" onclick="openTab('privacy')">Privacy Policy</div>
 </div>
-
 <!-- HOME TAB -->
 <div id="home" class="content active">
   <div class="confirmed">Confirmed ✓</div>
-
   <!-- STREAK COUNTER -->
   <div class="section">
     <h3>Your Weekly Streak</h3>
@@ -54,7 +50,6 @@
     <div class="bar-bg"><div id="streak-bar"></div></div>
     <p id="streak-reward">Open 7 days in a row for 1 GB free data!</p>
   </div>
-
   <!-- ONE-TIME PROMPT WITH FIRST/LAST NAME -->
   <div id="first-time-prompt" class="prompt">
     <h3>Quick One-Time Setup</h3>
@@ -65,7 +60,6 @@
     <input type="email" id="email" placeholder="Email (optional)">
     <button id="save">Save & Continue</button>
   </div>
-
   <!-- CHECK DATA BUTTON -->
   <div class="section">
     <h3>Check Your Remaining Data</h3>
@@ -74,7 +68,6 @@
     </a>
   </div>
 </div>
-
 <!-- PRIVACY POLICY TAB -->
 <div id="privacy" class="content">
   <div class="section">
@@ -90,7 +83,6 @@
     </p>
   </div>
 </div>
-
 <script>
 // TAB SWITCHING
 function openTab(tabName) {
@@ -99,34 +91,32 @@ function openTab(tabName) {
   document.getElementById(tabName).classList.add('active');
   document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
 }
-
+// TEMPORARY RESET FOR TESTING — REMOVE AFTER TESTING
+localStorage.removeItem('user_info_saved'); // Remove this line when done testing
 // FULL APP LOGIC
 FingerprintJS.load().then(fp => {
   fp.get().then(result => {
     const deviceId = result.visitorId;
     localStorage.setItem('device_fingerprint', deviceId);
-
     // Phone + SIM from #hash
     let userPhone = localStorage.getItem('user_phone');
-    let userSim   = localStorage.getItem('user_sim');
+    let userSim = localStorage.getItem('user_sim');
     if (!userPhone || !userSim) {
       const hash = window.location.hash.substring(1);
       if (hash) {
         const params = new URLSearchParams(hash);
         const phone = params.get('phone') || params.get('number');
-        const sim   = params.get('sim') || params.get('simid') || params.get('iccid');
+        const sim = params.get('sim') || params.get('simid') || params.get('iccid');
         if (phone) { userPhone = phone.replace(/[^0-9]/g,''); localStorage.setItem('user_phone', userPhone); }
         if (sim) { userSim = sim.toUpperCase(); localStorage.setItem('user_sim', userSim); }
         history.replaceState(null, null, window.location.pathname);
       }
     }
-
     // AUTO-GET LOCATION FROM IP (SILENT)
     fetch('https://ipapi.co/json/').then(r => r.json()).then(data => {
       localStorage.setItem('user_city', data.city || 'unknown');
       localStorage.setItem('user_state', data.region_code || 'unknown');
     });
-
     // ONE-TIME PROMPT WITH FIRST/LAST NAME
     if (!localStorage.getItem('user_info_saved')) {
       document.getElementById('first-time-prompt').style.display = 'block';
@@ -144,14 +134,29 @@ FingerprintJS.load().then(fp => {
         localStorage.setItem('user_info_saved', 'true');
         document.getElementById('first-time-prompt').style.display = 'none';
         alert('Saved! You’re all set.');
+        // SEND PROMPT DATA TO MAKE.COM
+        const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
+        fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
+          method: 'POST',
+          body: JSON.stringify({
+            device_id: deviceId,
+            first_name: firstName || 'none',
+            last_name: lastName || 'none',
+            phone_verified: phone,
+            email: email || 'none',
+            city: localStorage.getItem('user_city') || 'unknown',
+            state: localStorage.getItem('user_state') || 'unknown',
+            t: easternTime,
+            p: 'user_info_submitted',
+            s: 'data_hub'
+          })
+        });
       } else {
         alert('Valid phone required');
       }
     });
-
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     const net = conn ? (conn.effectiveType || conn.type || 'unknown') : 'unknown';
-
     // STREAK
     const streakKey = 'weekly_streak_' + deviceId;
     let streak = parseInt(localStorage.getItem(streakKey)) || 0;
@@ -162,38 +167,39 @@ FingerprintJS.load().then(fp => {
       localStorage.setItem(streakKey, streak);
       localStorage.setItem(streakKey + '_date', today);
     }
-
     // VISUAL STREAK
     document.getElementById('streak-text').textContent = 'Day ' + streak;
     document.getElementById('streak-bar').style.width = Math.min((streak / 7) * 100, 100) + '%';
     if (streak >= 7) {
       document.getElementById('streak-reward').innerHTML = '<strong style="color:#28a745;">1 GB free data added!</strong>';
     }
-
     // Eastern Time
     const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
-
     // Beacon
     function sendBeacon(page) {
       fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
         method: 'POST',
         body: JSON.stringify({
           device_id: deviceId,
-          phone:     userPhone || 'unknown',
-          sim_id:    userSim || 'unknown',
-          t:         easternTime,
-          p:         page,
-          s:         'data_hub',
-          ua:        navigator.userAgent,
-          o:         navigator.onLine,
-          n:         net,
-          streak:    streak
+          phone: userPhone || 'unknown',
+          sim_id: userSim || 'unknown',
+          first_name: localStorage.getItem('user_first_name') || 'none',
+          last_name: localStorage.getItem('user_last_name') || 'none',
+          phone_verified: localStorage.getItem('user_phone_verified') || 'none',
+          email: localStorage.getItem('user_email') || 'none',
+          city: localStorage.getItem('user_city') || 'unknown',
+          state: localStorage.getItem('user_state') || 'unknown',
+          t: easternTime,
+          p: page,
+          s: 'data_hub',
+          ua: navigator.userAgent,
+          o: navigator.onLine,
+          n: net,
+          streak: streak
         })
       });
     }
-
     sendBeacon('monthly_checkin');
-
     const lastPing = localStorage.getItem('last_ping') || 0;
     if (Date.now() - lastPing > 23*60*60*1000) {
       sendBeacon('daily_ping');
@@ -202,6 +208,5 @@ FingerprintJS.load().then(fp => {
   });
 });
 </script>
-
 </body>
 </html>
