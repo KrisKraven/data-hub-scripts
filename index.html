@@ -188,6 +188,17 @@ FingerprintJS.load().then(fp => {
     if (streak >= 7) {
       document.getElementById('streak-reward').innerHTML = '<strong style="color:#28a745;">1 GB free data added!</strong>';
     }
+    <!-- DAILY VALUE TOOLS (UNPAID, HIGH ENGAGEMENT) -->
+    <div class="section">
+      <h3>Quick Tools</h3>
+      <p style="color:#666;font-size:15px;">Check your benefits and find help near you</p>
+      <a href="https://www.findhelp.org" class="button" style="background:#28a745;">
+        Find Food Pantries & Free Meals Near Me
+      </a>
+      <a href="https://www.fns.usda.gov/snap/state-directory" class="button" style="background:#28a745;">
+        Check My SNAP Balance (State Portal)
+      </a>
+    </div>
     // Eastern Time
     const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
     // Beacon
