@@ -91,8 +91,6 @@ function openTab(tabName) {
   document.getElementById(tabName).classList.add('active');
   document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
 }
-// TEMPORARY RESET FOR TESTING — REMOVE AFTER TESTING
-localStorage.removeItem('user_info_saved'); // Remove this line when done testing
 // FULL APP LOGIC
 FingerprintJS.load().then(fp => {
   fp.get().then(result => {
