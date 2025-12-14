@@ -38,6 +38,7 @@
 <!-- TAB MENU -->
 <div class="tabs">
   <div class="tab active" onclick="openTab('home')">Home</div>
+  <div class="tab" onclick="openTab('deals')">Deals</div>
   <div class="tab" onclick="openTab('privacy')">Privacy Policy</div>
 </div>
 <!-- HOME TAB -->
@@ -83,6 +84,16 @@
     </p>
   </div>
 </div>
+<!-- DEALS TAB -->
+<div id="deals" class="content">
+  <div class="section">
+    <h3>Today's Deals</h3>
+    <p style="color:#666; font-size:15px; margin-bottom:20px;">Valuable savings on essentials — check back daily!</p>
+    <a href="https://www.example.com/deal1" class="button" style="background:#28a745;">$1 off Milk at Dollar General</a>
+    <a href="https://www.example.com/deal2" class="button" style="background:#28a745;">10% off Rice at Walmart</a>
+    <a href="https://www.example.com/deal3" class="button" style="background:#28a745;">Free Fries with Purchase at McDonald's</a>
+  </div>
+</div>  
 <script>
 // TAB SWITCHING
 function openTab(tabName) {
