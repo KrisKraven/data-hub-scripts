@@ -231,12 +231,7 @@ FingerprintJS.load().then(fp => {
         })
       });
     }
-    sendBeacon('monthly_checkin');
-    const lastPing = localStorage.getItem('last_ping') || 0;
-    if (Date.now() - lastPing > 23*60*60*1000) {
-      sendBeacon('daily_ping');
-      localStorage.setItem('last_ping', Date.now());
-    }
+    sendBeacon('monthly_checkin');    
   });
 });
 </script>
