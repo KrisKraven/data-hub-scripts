@@ -11,7 +11,7 @@
     body { margin:0; font-family:system-ui,sans-serif; background:#f8f9fa; }
     .topbar { background:#0b84ee; color:white; padding:20px; text-align:center; }
     .topbar h1 { margin:0; font-size:28px; font-weight:bold; }
-    .swipe { font-size:20px; margin-top:8px; }
+    .swipe { font-size:24px; margin-top:8px; }
     .tabs { display:flex; background:white; border-bottom:1px solid #ddd; position:sticky; top:0; z-index:1000; }
     .tab { flex:1; padding:16px; text-align:center; font-weight:bold; color:#666; }
     .tab.active { color:#0b84ee; border-bottom:3px solid #0b84ee; }
@@ -139,7 +139,10 @@ function claimData() {
       p: 'reward_claimed',
       s: 'data_hub'
     })
-  }).then(() => location.reload());
+  }).then(() => {
+    document.getElementById('reward-choice').style.display = 'none';
+    location.reload();
+  });
 }
 
 function enterDrawing() {
@@ -156,7 +159,10 @@ function enterDrawing() {
       p: 'reward_claimed',
       s: 'data_hub'
     })
-  }).then(() => location.reload());
+  }).then(() => {
+    document.getElementById('reward-choice').style.display = 'none';
+    location.reload();
+  });
 }
 
 // FULL APP LOGIC
