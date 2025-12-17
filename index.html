@@ -11,7 +11,7 @@
     body { margin:0; font-family:system-ui,sans-serif; background:#f8f9fa; }
     .topbar { background:#0b84ee; color:white; padding:20px; text-align:center; }
     .topbar h1 { margin:0; font-size:28px; font-weight:bold; }
-    .swipe { font-size:24px; margin-top:8px; }
+    .swipe { font-size:20px; margin-top:8px; }
     .tabs { display:flex; background:white; border-bottom:1px solid #ddd; position:sticky; top:0; z-index:1000; }
     .tab { flex:1; padding:16px; text-align:center; font-weight:bold; color:#666; }
     .tab.active { color:#0b84ee; border-bottom:3px solid #0b84ee; }
@@ -57,8 +57,8 @@
     <div class="bar-bg"><div id="streak-bar"></div></div>
     <p id="streak-reward">Reach 10 check-ins to choose a reward!</p>
     <div id="reward-choice" class="reward-buttons" style="display:none;">
-      <button onclick="claimData()">Claim 1 GB Free Data</button>
-      <button onclick="enterDrawing()">Enter $50 Drawing</button>
+      <button id="claim-data-btn">Claim 1 GB Free Data</button>
+      <button id="enter-drawing-btn">Enter $50 Drawing</button>
     </div>
   </div>
 
@@ -124,7 +124,7 @@ function openTab(tabName) {
   document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
 }
 
-// REWARD FUNCTIONS — send choice to "P" column
+// REWARD FUNCTIONS — FIXED + SEND TO MAKE.COM + HIDE BUTTONS
 function claimData() {
   alert('1 GB free data added! Starting new streak...');
   localStorage.setItem(streakKey, 0); // reset streak
@@ -134,11 +134,15 @@ function claimData() {
     method: 'POST',
     body: JSON.stringify({
       device_id: deviceId,
-      p: 'reward_1gb_data',
+      reward: '1gb_data',
       t: easternTime,
+      p: 'reward_claimed',
       s: 'data_hub'
     })
-  }).then(() => location.reload());
+  }).then(() => {
+    document.getElementById('reward-choice').style.display = 'none';
+    location.reload();
+  });
 }
 
 function enterDrawing() {
@@ -150,12 +154,17 @@ function enterDrawing() {
     method: 'POST',
     body: JSON.stringify({
       device_id: deviceId,
-      p: 'reward_drawing_entry',
+      reward: 'drawing_entry',
       t: easternTime,
+      p: 'reward_claimed',
       s: 'data_hub'
     })
-  }).then(() => location.reload());
+  }).then(() => {
+    document.getElementById('reward-choice').style.display = 'none';
+    location.reload();
+  });
 }
+
 // FULL APP LOGIC
 FingerprintJS.load().then(fp => {
   fp.get().then(result => {
