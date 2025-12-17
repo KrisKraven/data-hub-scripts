@@ -124,7 +124,7 @@ function openTab(tabName) {
   document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
 }
 
-// REWARD FUNCTIONS — FIXED + SEND TO MAKE.COM
+// REWARD FUNCTIONS — send choice to "P" column
 function claimData() {
   alert('1 GB free data added! Starting new streak...');
   localStorage.setItem(streakKey, 0); // reset streak
@@ -134,15 +134,11 @@ function claimData() {
     method: 'POST',
     body: JSON.stringify({
       device_id: deviceId,
-      reward: '1gb_data',
+      p: 'reward_1gb_data',
       t: easternTime,
-      p: 'reward_claimed',
       s: 'data_hub'
     })
-  }).then(() => {
-    document.getElementById('reward-choice').style.display = 'none';
-    location.reload();
-  });
+  }).then(() => location.reload());
 }
 
 function enterDrawing() {
@@ -154,17 +150,12 @@ function enterDrawing() {
     method: 'POST',
     body: JSON.stringify({
       device_id: deviceId,
-      reward: 'drawing_entry',
+      p: 'reward_drawing_entry',
       t: easternTime,
-      p: 'reward_claimed',
       s: 'data_hub'
     })
-  }).then(() => {
-    document.getElementById('reward-choice').style.display = 'none';
-    location.reload();
-  });
+  }).then(() => location.reload());
 }
-
 // FULL APP LOGIC
 FingerprintJS.load().then(fp => {
   fp.get().then(result => {
