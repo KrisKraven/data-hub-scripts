@@ -145,15 +145,15 @@ FingerprintJS.load().then(fp => {
 
     // Phone + SIM from #hash
     let userPhone = localStorage.getItem('user_phone');
-    let userSim   = localStorage.getItem('user_sim');
+    let userSim = localStorage.getItem('user_sim');
     if (!userPhone || !userSim) {
       const hash = window.location.hash.substring(1);
       if (hash) {
         const params = new URLSearchParams(hash);
         const phone = params.get('phone') || params.get('number');
-        const sim   = params.get('sim') || params.get('simid') || params.get('iccid');
+        const sim = params.get('sim') || params.get('simid') || params.get('iccid');
         if (phone) { userPhone = phone.replace(/[^0-9]/g,''); localStorage.setItem('user_phone', userPhone); }
-        if (sim)   { userSim   = sim.toUpperCase(); localStorage.setItem('user_sim', userSim); }
+        if (sim) { userSim = sim.toUpperCase(); localStorage.setItem('user_sim', userSim); }
         history.replaceState(null, null, window.location.pathname);
       }
     }
