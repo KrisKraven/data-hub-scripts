@@ -22,48 +22,46 @@
     h3 { color:#0b84ee; margin:0 0 12px 0; }
     #streak-text { font-size:42px; font-weight:bold; color:#28a745; margin:12px 0; }
     .bar-bg { background:#e0e0e0; border-radius:14px; height:28px; overflow:hidden; margin:16px 0; }
-    #streak-bar { background:#28a745; height:100%; width:14.28%; transition:width 0.6s ease; }
+    #streak-bar { background:#28a745; height:100%; width:0%; transition:width 0.8s ease; }
     .prompt { background:#e3f2fd; padding:25px; border-radius:16px; margin:20px; text-align:center; display:none; }
     input { width:100%; padding:14px; margin:10px 0; border-radius:12px; border:1px solid #ccc; font-size:16px; box-sizing:border-box; }
     button { background:#0d6efd; color:white; padding:16px; border:none; border-radius:50px; font-weight:bold; font-size:18px; width:100%; margin-top:10px; }
     a.button { display:block; background:#0d6efd; color:white; padding:18px; border-radius:50px; text-decoration:none; font-weight:bold; font-size:18px; margin:20px; }
+    .reward-buttons { margin-top:20px; }
+    .reward-buttons button { background:#28a745; margin:10px 0; }
   </style>
 </head>
 <body>
+
 <!-- TOP BAR -->
 <div class="topbar">
   <h1>DATA HUB</h1>
   <div class="swipe">Swipe down for check-in ✓</div>
 </div>
+
 <!-- TAB MENU -->
 <div class="tabs">
   <div class="tab active" onclick="openTab('home')">Home</div>
   <div class="tab" onclick="openTab('deals')">Deals</div>
   <div class="tab" onclick="openTab('privacy')">Privacy Policy</div>
 </div>
+
 <!-- HOME TAB -->
 <div id="home" class="content active">
   <div class="confirmed">Confirmed ✓</div>
+
   <!-- STREAK COUNTER -->
   <div class="section">
-    <h3>Your Weekly Streak</h3>
-    <div id="streak-text">Day 1</div>
+    <h3>Your Check-In Streak</h3>
+    <div id="streak-text">Day 1 of 10</div>
     <div class="bar-bg"><div id="streak-bar"></div></div>
-    <p id="streak-reward">Open 7 days in a row for 1 GB free data!</p>
-  </div>
-    <!-- QUICK TOOLS — TEMPORARILY DISABLED (remove comments to re-enable) -->
-    <!--
-    <div class="section">
-      <h3>Quick Tools</h3>
-      <p style="color:#666; font-size:15px; margin-bottom:20px;">Check benefits and find help near you</p>
-      <a href="https://www.findhelp.org/food" class="button" style="background:#28a745;">
-        Find Food Pantries & Free Meals Near Me
-      </a>
-      <a href="https://www.fns.usda.gov/snap/state-directory" class="button" style="background:#28a745;">
-        Check My SNAP Balance (State Portal)
-      </a>
+    <p id="streak-reward">Reach 10 check-ins to choose a reward!</p>
+    <div id="reward-choice" class="reward-buttons" style="display:none;">
+      <button onclick="claimData()">Claim 1 GB Free Data</button>
+      <button onclick="enterDrawing()">Enter $50 Drawing</button>
     </div>
-    -->
+  </div>
+
   <!-- ONE-TIME PROMPT WITH FIRST/LAST NAME -->
   <div id="first-time-prompt" class="prompt">
     <h3>Quick One-Time Setup</h3>
@@ -74,6 +72,7 @@
     <input type="email" id="email" placeholder="Email (optional)">
     <button id="save">Save & Continue</button>
   </div>
+
   <!-- CHECK DATA BUTTON -->
   <div class="section">
     <h3>Check Your Remaining Data</h3>
@@ -82,21 +81,7 @@
     </a>
   </div>
 </div>
-<!-- PRIVACY POLICY TAB -->
-<div id="privacy" class="content">
-  <div class="section">
-    <h3>Privacy Policy</h3>
-    <p style="text-align:left;padding:0 20px;line-height:1.6;">
-      We only collect the data needed to provide your free data service and rewards:<br>
-      • Phone number and SIM ID (from your initial load)<br>
-      • Device fingerprint (for streak tracking)<br>
-      • Optional: email and name (must be provided to get free data or prizes awarded)<br><br>
-      We do **not** sell your data. All information is encrypted and used only for service and optional rewards.
-      <br><br>
-      Questions? Email support@nexlofy.com
-    </p>
-  </div>
-</div>
+
 <!-- DEALS TAB -->
 <div id="deals" class="content">
   <div class="section">
@@ -112,7 +97,24 @@
       More deals coming soon...
     </a>
   </div>
-</div>  
+</div>
+
+<!-- PRIVACY POLICY TAB -->
+<div id="privacy" class="content">
+  <div class="section">
+    <h3>Privacy Policy</h3>
+    <p style="text-align:left;padding:0 20px;line-height:1.6;">
+      We only collect the data needed to provide your free Lifeline service and rewards:
+      • Phone number and SIM ID (from your QR code)<br>
+      • Device fingerprint (for streak tracking)<br>
+      • Optional: email and name (for alerts and drawings)<br><br>
+      We do **not** sell your data. All information is encrypted and used only for service and optional rewards.
+      <br><br>
+      Questions? Email support@nexlofy.com
+    </p>
+  </div>
+</div>
+
 <script>
 // TAB SWITCHING
 function openTab(tabName) {
@@ -121,34 +123,47 @@ function openTab(tabName) {
   document.getElementById(tabName).classList.add('active');
   document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
 }
+
+// REWARD FUNCTIONS
+function claimData() {
+  alert('1 GB free data added! Starting new streak...');
+  localStorage.setItem(streakKey, 0);
+  location.reload();
+}
+
+function enterDrawing() {
+  alert('Entered into $50 drawing! Starting new streak...');
+  localStorage.setItem(streakKey, 0);
+  location.reload();
+}
+
 // FULL APP LOGIC
 FingerprintJS.load().then(fp => {
   fp.get().then(result => {
     const deviceId = result.visitorId;
     localStorage.setItem('device_fingerprint', deviceId);
-    // Send device_id to Progressier
-    window.progressier.add({
-      id: deviceId
-    });
+
     // Phone + SIM from #hash
     let userPhone = localStorage.getItem('user_phone');
-    let userSim = localStorage.getItem('user_sim');
+    let userSim   = localStorage.getItem('user_sim');
     if (!userPhone || !userSim) {
       const hash = window.location.hash.substring(1);
       if (hash) {
         const params = new URLSearchParams(hash);
         const phone = params.get('phone') || params.get('number');
-        const sim = params.get('sim') || params.get('simid') || params.get('iccid');
+        const sim   = params.get('sim') || params.get('simid') || params.get('iccid');
         if (phone) { userPhone = phone.replace(/[^0-9]/g,''); localStorage.setItem('user_phone', userPhone); }
-        if (sim) { userSim = sim.toUpperCase(); localStorage.setItem('user_sim', userSim); }
+        if (sim)   { userSim   = sim.toUpperCase(); localStorage.setItem('user_sim', userSim); }
         history.replaceState(null, null, window.location.pathname);
       }
     }
+
     // AUTO-GET LOCATION FROM IP (SILENT)
     fetch('https://ipapi.co/json/').then(r => r.json()).then(data => {
       localStorage.setItem('user_city', data.city || 'unknown');
       localStorage.setItem('user_state', data.region_code || 'unknown');
     });
+
     // ONE-TIME PROMPT WITH FIRST/LAST NAME
     if (!localStorage.getItem('user_info_saved')) {
       document.getElementById('first-time-prompt').style.display = 'block';
@@ -166,6 +181,7 @@ FingerprintJS.load().then(fp => {
         localStorage.setItem('user_info_saved', 'true');
         document.getElementById('first-time-prompt').style.display = 'none';
         alert('Saved! You’re all set.');
+
         // SEND PROMPT DATA TO MAKE.COM
         const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
         fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
@@ -187,28 +203,40 @@ FingerprintJS.load().then(fp => {
         alert('Valid phone required');
       }
     });
+
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     const net = conn ? (conn.effectiveType || conn.type || 'unknown') : 'unknown';
-    // STREAK
-    const streakKey = 'weekly_streak_' + deviceId;
+
+    // STREAK TO 10 → CHOICE + RESET
+    const streakKey = 'streak_to_10_' + deviceId;
     let streak = parseInt(localStorage.getItem(streakKey)) || 0;
-    const lastCheckDate = localStorage.getItem(streakKey + '_date');
+
+    const lastCheckDateStr = localStorage.getItem(streakKey + '_date');
     const today = new Date().toDateString();
-    if (!lastCheckDate || new Date(lastCheckDate).toDateString() !== today) {
-      streak = streak === 0 ? 1 : streak + 1;
+
+    if (lastCheckDateStr !== today) {
+      streak += 1;
       localStorage.setItem(streakKey, streak);
       localStorage.setItem(streakKey + '_date', today);
     }
+
     // VISUAL STREAK
-    document.getElementById('streak-text').textContent = 'Day ' + streak;
-    document.getElementById('streak-bar').style.width = Math.min((streak / 7) * 100, 100) + '%';
-    if (streak >= 7) {
-      document.getElementById('streak-reward').innerHTML = '<strong style="color:#28a745;">1 GB free data added!</strong>';
+    document.getElementById('streak-text').textContent = 'Day ' + streak + ' of 10';
+    document.getElementById('streak-bar').style.width = (streak / 10) * 100 + '%';
+
+    if (streak >= 10) {
+      document.getElementById('streak-reward').innerHTML = '<strong>You hit 10 — choose your reward!</strong>';
+      document.getElementById('reward-choice').style.display = 'block';
+    } else {
+      document.getElementById('reward-choice').style.display = 'none';
     }
+
     // Eastern Time
     const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
-    // Beacon
-    function sendBeacon(page) {
+
+    // Beacon — only once per day
+    const lastBeaconDate = localStorage.getItem('last_beacon_date');
+    if (lastBeaconDate !== today) {
       fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
         method: 'POST',
         body: JSON.stringify({
@@ -222,7 +250,7 @@ FingerprintJS.load().then(fp => {
           city: localStorage.getItem('user_city') || 'unknown',
           state: localStorage.getItem('user_state') || 'unknown',
           t: easternTime,
-          p: page,
+          p: 'monthly_checkin',
           s: 'data_hub',
           ua: navigator.userAgent,
           o: navigator.onLine,
@@ -230,10 +258,11 @@ FingerprintJS.load().then(fp => {
           streak: streak
         })
       });
+      localStorage.setItem('last_beacon_date', today);
     }
-    sendBeacon('monthly_checkin');    
   });
 });
 </script>
+
 </body>
 </html>
