@@ -11,7 +11,7 @@
     body { margin:0; font-family:system-ui,sans-serif; background:#f8f9fa; }
     .topbar { background:#0b84ee; color:white; padding:20px; text-align:center; }
     .topbar h1 { margin:0; font-size:28px; font-weight:bold; }
-    .swipe { font-size:26px; margin-top:8px; }
+    .swipe { font-size:20px; margin-top:8px; }
     .tabs { display:flex; background:white; border-bottom:1px solid #ddd; position:sticky; top:0; z-index:1000; }
     .tab { flex:1; padding:16px; text-align:center; font-weight:bold; color:#666; }
     .tab.active { color:#0b84ee; border-bottom:3px solid #0b84ee; }
@@ -116,10 +116,11 @@
 </div>
 
 <script>
-// GLOBAL — streakKey available to reward functions
+// GLOBAL VARIABLES — FIXED SCOPE
 let deviceId = '';
 let streakKey = '';
-  
+
+// TAB SWITCHING
 function openTab(tabName) {
   document.querySelectorAll('.content').forEach(tab => tab.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
@@ -127,7 +128,7 @@ function openTab(tabName) {
   document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
 }
 
-// REWARD FUNCTIONS — FIXED: use global streakKey, hide buttons, send row
+// REWARD FUNCTIONS — FIXED + SEND TO MAKE.COM + HIDE BUTTONS
 function claimData() {
   alert('1 GB free data added! Starting new streak...');
   localStorage.setItem(streakKey, 0); // reset streak
@@ -165,36 +166,13 @@ function enterDrawing() {
     location.reload();
   });
 }
-function enterDrawing() {
-  alert('Entered into $50 drawing! Starting new streak...');
-  localStorage.setItem(streakKey, 0); // reset streak
-
-  const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
-  fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
-    method: 'POST',
-    body: JSON.stringify({
-      device_id: deviceId,
-      p: 'reward_drawing_entry',
-      t: easternTime,
-      s: 'data_hub'
-    })
-  }).then(() => {
-    document.getElementById('reward-choice').style.display = 'none';
-    location.reload();
-  }).catch(() => {
-    document.getElementById('reward-choice').style.display = 'none';
-    location.reload();
-  });
-}
 
 // FULL APP LOGIC
 FingerprintJS.load().then(fp => {
   fp.get().then(result => {
-    const deviceId = result.visitorId;
+    deviceId = result.visitorId; // SET GLOBAL
     localStorage.setItem('device_fingerprint', deviceId);
-
-    // SET GLOBAL streakKey
-    streakKey = 'streak_to_10_' + deviceId;
+    streakKey = 'streak_to_10_' + deviceId; // SET GLOBAL
 
     // Phone + SIM from #hash
     let userPhone = localStorage.getItem('user_phone');
@@ -315,5 +293,6 @@ FingerprintJS.load().then(fp => {
   });
 });
 </script>
+
 </body>
 </html>
