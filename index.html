@@ -117,8 +117,9 @@
 
 <script>
 // GLOBAL — streakKey available to reward functions
+let deviceId = '';
 let streakKey = '';
-
+  
 function openTab(tabName) {
   document.querySelectorAll('.content').forEach(tab => tab.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
@@ -143,12 +144,27 @@ function claimData() {
   }).then(() => {
     document.getElementById('reward-choice').style.display = 'none';
     location.reload();
-  }).catch(() => {
+  });
+}
+
+function enterDrawing() {
+  alert('Entered into $50 drawing! Starting new streak...');
+  localStorage.setItem(streakKey, 0); // reset streak
+
+  const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
+  fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
+    method: 'POST',
+    body: JSON.stringify({
+      device_id: deviceId,
+      p: 'reward_drawing_entry',
+      t: easternTime,
+      s: 'data_hub'
+    })
+  }).then(() => {
     document.getElementById('reward-choice').style.display = 'none';
     location.reload();
   });
 }
-
 function enterDrawing() {
   alert('Entered into $50 drawing! Starting new streak...');
   localStorage.setItem(streakKey, 0); // reset streak
