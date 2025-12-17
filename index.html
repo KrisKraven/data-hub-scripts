@@ -124,7 +124,7 @@ function openTab(tabName) {
   document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
 }
 
-// REWARD FUNCTIONS — FIXED + SEND TO MAKE.COM + HIDE BUTTONS
+// REWARD FUNCTIONS — FIXED + SEND TO "p" COLUMN + HIDE BUTTONS
 function claimData() {
   alert('1 GB free data added! Starting new streak...');
   localStorage.setItem(streakKey, 0); // reset streak
@@ -134,9 +134,8 @@ function claimData() {
     method: 'POST',
     body: JSON.stringify({
       device_id: deviceId,
-      reward: '1gb_data',
+      p: 'reward_1gb_data',
       t: easternTime,
-      p: 'reward_claimed',
       s: 'data_hub'
     })
   }).then(() => {
@@ -154,9 +153,8 @@ function enterDrawing() {
     method: 'POST',
     body: JSON.stringify({
       device_id: deviceId,
-      reward: 'drawing_entry',
+      p: 'reward_drawing_entry',
       t: easternTime,
-      p: 'reward_claimed',
       s: 'data_hub'
     })
   }).then(() => {
