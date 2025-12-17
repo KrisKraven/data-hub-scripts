@@ -124,17 +124,39 @@ function openTab(tabName) {
   document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
 }
 
-// REWARD FUNCTIONS
+// REWARD FUNCTIONS — FIXED + SEND TO MAKE.COM
 function claimData() {
   alert('1 GB free data added! Starting new streak...');
-  localStorage.setItem(streakKey, 0);
-  location.reload();
+  localStorage.setItem(streakKey, 0); // reset streak
+
+  const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
+  fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
+    method: 'POST',
+    body: JSON.stringify({
+      device_id: deviceId,
+      reward: '1gb_data',
+      t: easternTime,
+      p: 'reward_claimed',
+      s: 'data_hub'
+    })
+  }).then(() => location.reload());
 }
 
 function enterDrawing() {
   alert('Entered into $50 drawing! Starting new streak...');
-  localStorage.setItem(streakKey, 0);
-  location.reload();
+  localStorage.setItem(streakKey, 0); // reset streak
+
+  const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
+  fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
+    method: 'POST',
+    body: JSON.stringify({
+      device_id: deviceId,
+      reward: 'drawing_entry',
+      t: easternTime,
+      p: 'reward_claimed',
+      s: 'data_hub'
+    })
+  }).then(() => location.reload());
 }
 
 // FULL APP LOGIC
