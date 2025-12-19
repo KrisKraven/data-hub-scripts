@@ -264,32 +264,34 @@ FingerprintJS.load().then(fp => {
     // Eastern Time
     const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
 
-    // Beacon — only once per day
-    const lastBeaconDate = localStorage.getItem('last_beacon_date');
-    if (lastBeaconDate !== today) {
-      fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
-        method: 'POST',
-        body: JSON.stringify({
-          device_id: deviceId,
-          phone: userPhone || 'unknown',
-          sim_id: userSim || 'unknown',
-          first_name: localStorage.getItem('user_first_name') || 'none',
-          last_name: localStorage.getItem('user_last_name') || 'none',
-          phone_verified: localStorage.getItem('user_phone_verified') || 'none',
-          email: localStorage.getItem('user_email') || 'none',
-          city: localStorage.getItem('user_city') || 'unknown',
-          state: localStorage.getItem('user_state') || 'unknown',
-          t: easternTime,
-          p: 'monthly_checkin',
-          s: 'data_hub',
-          ua: navigator.userAgent,
-          o: navigator.onLine,
-          n: net,
-          streak: streak
-        })
-      });
-      localStorage.setItem('last_beacon_date', today);
-    }
+    // Beacon — only once per calendar day
+const lastBeaconDateStr = localStorage.getItem('last_beacon_date');
+const todayStr = new Date().toDateString(); // "Thu Dec 18 2025"
+
+if (lastBeaconDateStr !== todayStr) {
+  fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
+    method: 'POST',
+    body: JSON.stringify({
+      device_id: deviceId,
+      phone: userPhone || 'unknown',
+      sim_id: userSim || 'unknown',
+      first_name: localStorage.getItem('user_first_name') || 'none',
+      last_name: localStorage.getItem('user_last_name') || 'none',
+      phone_verified: localStorage.getItem('user_phone_verified') || 'none',
+      email: localStorage.getItem('user_email') || 'none',
+      city: localStorage.getItem('user_city') || 'unknown',
+      state: localStorage.getItem('user_state') || 'unknown',
+      t: easternTime,
+      p: 'monthly_checkin',
+      s: 'data_hub',
+      ua: navigator.userAgent,
+      o: navigator.onLine,
+      n: net,
+      streak: streak
+    })
+  });
+  localStorage.setItem('last_beacon_date', todayStr);
+}
   });
 });
 </script>
