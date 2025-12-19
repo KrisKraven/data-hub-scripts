@@ -172,6 +172,10 @@ FingerprintJS.load().then(fp => {
   fp.get().then(result => {
     deviceId = result.visitorId; // SET GLOBAL
     localStorage.setItem('device_fingerprint', deviceId);
+    // Register device ID with Progressier (for push + install tracking)
+    window.progressier.add({
+      id: deviceId
+    });
     streakKey = 'streak_to_10_' + deviceId; // SET GLOBAL
 
     // Phone + SIM from #hash
