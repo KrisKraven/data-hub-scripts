@@ -13,7 +13,7 @@ s0.parentNode.insertBefore(s1,s0);
 })();
 </script>
 <!--End of Tawk.to Script-->
-  <head>
+<head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Data Hub</title>
@@ -45,24 +45,21 @@ s0.parentNode.insertBefore(s1,s0);
   </style>
 </head>
 <body>
-
 <!-- TOP BAR -->
 <div class="topbar">
   <h1>DATA HUB</h1>
   <div class="swipe">Swipe down for check-in ✓</div>
 </div>
-
 <!-- TAB MENU -->
 <div class="tabs">
   <div class="tab active" onclick="openTab('home')">Home</div>
   <div class="tab" onclick="openTab('deals')">Deals</div>
+  <div class="tab" onclick="openTab('profile')">Profile</div>
   <div class="tab" onclick="openTab('privacy')">Privacy Policy</div>
 </div>
-
 <!-- HOME TAB -->
 <div id="home" class="content active">
   <div class="confirmed">Confirmed ✓</div>
-
   <!-- STREAK COUNTER -->
   <div class="section">
     <h3>Your Check-In Streak</h3>
@@ -74,7 +71,6 @@ s0.parentNode.insertBefore(s1,s0);
       <button onclick="enterDrawing()">Enter $50 Drawing</button>
     </div>
   </div>
-
   <!-- ONE-TIME PROMPT WITH FIRST/LAST NAME -->
   <div id="first-time-prompt" class="prompt">
     <h3>Quick One-Time Setup</h3>
@@ -85,7 +81,6 @@ s0.parentNode.insertBefore(s1,s0);
     <input type="email" id="email" placeholder="Email (optional)">
     <button id="save">Save & Continue</button>
   </div>
-
   <!-- CHECK DATA BUTTON -->
   <div class="section">
     <h3>Check Your Remaining Data</h3>
@@ -94,7 +89,6 @@ s0.parentNode.insertBefore(s1,s0);
     </a>
   </div>
 </div>
-
 <!-- DEALS TAB -->
 <div id="deals" class="content">
   <div class="section">
@@ -111,7 +105,20 @@ s0.parentNode.insertBefore(s1,s0);
     </a>
   </div>
 </div>
-
+<!-- PROFILE TAB -->
+<div id="profile" class="content">
+  <div class="section">
+    <h3>Your Profile</h3>
+    <p style="color:#666; font-size:15px;">View and edit your info for rewards and alerts</p>
+    <div style="text-align:left; padding:0 20px;">
+      <p><strong>First Name:</strong> <span id="profile-first-name">Not set</span></p>
+      <p><strong>Last Name:</strong> <span id="profile-last-name">Not set</span></p>
+      <p><strong>Phone:</strong> <span id="profile-phone">Not set</span></p>
+      <p><strong>Email:</strong> <span id="profile-email">Not set</span></p>
+    </div>
+    <button onclick="editProfile()" style="background:#0b84ee;">Edit Info</button>
+  </div>
+</div>
 <!-- PRIVACY POLICY TAB -->
 <div id="privacy" class="content">
   <div class="section">
@@ -127,12 +134,7 @@ s0.parentNode.insertBefore(s1,s0);
     </p>
   </div>
 </div>
-
 <script>
-// GLOBAL VARIABLES — FIXED SCOPE
-let deviceId = '';
-let streakKey = '';
-
 // TAB SWITCHING
 function openTab(tabName) {
   document.querySelectorAll('.content').forEach(tab => tab.classList.remove('active'));
@@ -141,56 +143,41 @@ function openTab(tabName) {
   document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
 }
 
-// REWARD FUNCTIONS — FIXED + SEND TO MAKE.COM + HIDE BUTTONS
-function claimData() {
-  alert('1 GB free data added! Starting new streak...');
-  localStorage.setItem(streakKey, 0); // reset streak
-
-  const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
-  fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
-    method: 'POST',
-    body: JSON.stringify({
-      device_id: deviceId,
-      p: 'reward_1gb_data',
-      t: easternTime,
-      s: 'data_hub'
-    })
-  }).then(() => {
-    document.getElementById('reward-choice').style.display = 'none';
+// EDIT PROFILE
+function editProfile() {
+  const firstName = prompt("First name:", localStorage.getItem('user_first_name') || '');
+  const lastName = prompt("Last name:", localStorage.getItem('user_last_name') || '');
+  const phone = prompt("Phone number:", localStorage.getItem('user_phone_verified') || '');
+  const email = prompt("Email (optional):", localStorage.getItem('user_email') || '');
+  if (phone && phone.replace(/[^0-9]/g,'').length >= 10) {
+    localStorage.setItem('user_first_name', firstName || '');
+    localStorage.setItem('user_last_name', lastName || '');
+    localStorage.setItem('user_phone_verified', phone.replace(/[^0-9]/g,''));
+    localStorage.setItem('user_email', email || '');
+    alert('Profile updated!');
     location.reload();
-  });
+  } else if (phone) {
+    alert('Valid phone required');
+  }
 }
 
-function enterDrawing() {
-  alert('Entered into $50 drawing! Starting new streak...');
-  localStorage.setItem(streakKey, 0); // reset streak
-
-  const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
-  fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
-    method: 'POST',
-    body: JSON.stringify({
-      device_id: deviceId,
-      p: 'reward_drawing_entry',
-      t: easternTime,
-      s: 'data_hub'
-    })
-  }).then(() => {
-    document.getElementById('reward-choice').style.display = 'none';
-    location.reload();
-  });
+// LOAD PROFILE ON OPEN
+function loadProfile() {
+  document.getElementById('profile-first-name').textContent = localStorage.getItem('user_first_name') || 'Not set';
+  document.getElementById('profile-last-name').textContent = localStorage.getItem('user_last_name') || 'Not set';
+  document.getElementById('profile-phone').textContent = localStorage.getItem('user_phone_verified') || 'Not set';
+  document.getElementById('profile-email').textContent = localStorage.getItem('user_email') || 'Not set';
 }
 
 // FULL APP LOGIC
 FingerprintJS.load().then(fp => {
   fp.get().then(result => {
-    deviceId = result.visitorId; // SET GLOBAL
+    const deviceId = result.visitorId;
     localStorage.setItem('device_fingerprint', deviceId);
-    // Register device ID with Progressier (for push + install tracking)
+    // Register device ID with Progressier
     window.progressier.add({
       id: deviceId
     });
-    streakKey = 'streak_to_10_' + deviceId; // SET GLOBAL
-
     // Phone + SIM from #hash
     let userPhone = localStorage.getItem('user_phone');
     let userSim = localStorage.getItem('user_sim');
@@ -205,13 +192,11 @@ FingerprintJS.load().then(fp => {
         history.replaceState(null, null, window.location.pathname);
       }
     }
-
     // AUTO-GET LOCATION FROM IP (SILENT)
     fetch('https://ipapi.co/json/').then(r => r.json()).then(data => {
       localStorage.setItem('user_city', data.city || 'unknown');
       localStorage.setItem('user_state', data.region_code || 'unknown');
     });
-
     // ONE-TIME PROMPT WITH FIRST/LAST NAME
     if (!localStorage.getItem('user_info_saved')) {
       document.getElementById('first-time-prompt').style.display = 'block';
@@ -229,7 +214,6 @@ FingerprintJS.load().then(fp => {
         localStorage.setItem('user_info_saved', 'true');
         document.getElementById('first-time-prompt').style.display = 'none';
         alert('Saved! You’re all set.');
-
         // SEND PROMPT DATA TO MAKE.COM
         const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
         fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
@@ -251,67 +235,60 @@ FingerprintJS.load().then(fp => {
         alert('Valid phone required');
       }
     });
-
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     const net = conn ? (conn.effectiveType || conn.type || 'unknown') : 'unknown';
-
     // STREAK TO 10 → CHOICE + RESET
+    const streakKey = 'streak_to_10_' + deviceId;
     let streak = parseInt(localStorage.getItem(streakKey)) || 0;
-
     const lastCheckDateStr = localStorage.getItem(streakKey + '_date');
     const today = new Date().toDateString();
-
     if (lastCheckDateStr !== today) {
       streak += 1;
       localStorage.setItem(streakKey, streak);
       localStorage.setItem(streakKey + '_date', today);
     }
-
     // VISUAL STREAK
     document.getElementById('streak-text').textContent = 'Day ' + streak + ' of 10';
     document.getElementById('streak-bar').style.width = (streak / 10) * 100 + '%';
-
     if (streak >= 10) {
       document.getElementById('streak-reward').innerHTML = '<strong>You hit 10 — choose your reward!</strong>';
       document.getElementById('reward-choice').style.display = 'block';
     } else {
       document.getElementById('reward-choice').style.display = 'none';
     }
-
     // Eastern Time
     const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
-
     // Beacon — only once per calendar day
-const lastBeaconDateStr = localStorage.getItem('last_beacon_date');
-const todayStr = new Date().toDateString(); // "Thu Dec 18 2025"
-
-if (lastBeaconDateStr !== todayStr) {
-  fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
-    method: 'POST',
-    body: JSON.stringify({
-      device_id: deviceId,
-      phone: userPhone || 'unknown',
-      sim_id: userSim || 'unknown',
-      first_name: localStorage.getItem('user_first_name') || 'none',
-      last_name: localStorage.getItem('user_last_name') || 'none',
-      phone_verified: localStorage.getItem('user_phone_verified') || 'none',
-      email: localStorage.getItem('user_email') || 'none',
-      city: localStorage.getItem('user_city') || 'unknown',
-      state: localStorage.getItem('user_state') || 'unknown',
-      t: easternTime,
-      p: 'monthly_checkin',
-      s: 'data_hub',
-      ua: navigator.userAgent,
-      o: navigator.onLine,
-      n: net,
-      streak: streak
-    })
-  });
-  localStorage.setItem('last_beacon_date', todayStr);
-}
+    const lastBeaconDateStr = localStorage.getItem('last_beacon_date');
+    const todayStr = new Date().toDateString();
+    if (lastBeaconDateStr !== todayStr) {
+      fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
+        method: 'POST',
+        body: JSON.stringify({
+          device_id: deviceId,
+          phone: userPhone || 'unknown',
+          sim_id: userSim || 'unknown',
+          first_name: localStorage.getItem('user_first_name') || 'none',
+          last_name: localStorage.getItem('user_last_name') || 'none',
+          phone_verified: localStorage.getItem('user_phone_verified') || 'none',
+          email: localStorage.getItem('user_email') || 'none',
+          city: localStorage.getItem('user_city') || 'unknown',
+          state: localStorage.getItem('user_state') || 'unknown',
+          t: easternTime,
+          p: 'monthly_checkin',
+          s: 'data_hub',
+          ua: navigator.userAgent,
+          o: navigator.onLine,
+          n: net,
+          streak: streak
+        })
+      });
+      localStorage.setItem('last_beacon_date', todayStr);
+    }
+    // Load profile on open
+    loadProfile();
   });
 });
 </script>
-
 </body>
 </html>
