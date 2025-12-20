@@ -178,6 +178,19 @@ FingerprintJS.load().then(fp => {
     window.progressier.add({
       id: deviceId
     });
+    
+    // Send user info to Tawk.to (shows in agent dashboard)
+    Tawk_API = Tawk_API || {};
+    Tawk_API.onLoad = function() {
+      Tawk_API.setAttributes({
+        name: (localStorage.getItem('user_first_name') || '') + ' ' + (localStorage.getItem('user_last_name') || ''),
+        email: localStorage.getItem('user_email') || '',
+        phone: localStorage.getItem('user_phone_verified') || localStorage.getItem('user_phone') || '',
+        'Device ID': localStorage.getItem('device_fingerprint') || '',
+        'City': localStorage.getItem('user_city') || '',
+        'State': localStorage.getItem('user_state') || ''
+      });
+    };
     // Phone + SIM from #hash
     let userPhone = localStorage.getItem('user_phone');
     let userSim = localStorage.getItem('user_sim');
