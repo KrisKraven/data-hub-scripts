@@ -110,13 +110,28 @@ var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
   <div class="section">
     <h3>Your Profile</h3>
     <p style="color:#666; font-size:15px;">View and edit your info for rewards and alerts</p>
+
+    <!-- DISPLAY CURRENT INFO -->
     <div style="text-align:left; padding:0 20px;">
       <p><strong>First Name:</strong> <span id="profile-first-name">Not set</span></p>
       <p><strong>Last Name:</strong> <span id="profile-last-name">Not set</span></p>
       <p><strong>Phone:</strong> <span id="profile-phone">Not set</span></p>
       <p><strong>Email:</strong> <span id="profile-email">Not set</span></p>
     </div>
-    <button onclick="editProfile()" style="background:#0b84ee;">Edit Info</button>
+
+    <!-- EDIT FORM (same style as initial prompt) -->
+    <div id="profile-edit-form" class="prompt" style="display:none;">
+      <h3>Edit Your Info</h3>
+      <p>Update your details below</p>
+      <input type="text" id="edit-first-name" placeholder="First name (optional)">
+      <input type="text" id="edit-last-name" placeholder="Last name (optional)">
+      <input type="tel" id="edit-phone" placeholder="Phone number">
+      <input type="email" id="edit-email" placeholder="Email (optional)">
+      <button onclick="saveProfileEdit()">Save Changes</button>
+      <button onclick="cancelProfileEdit()" style="background:#666; margin-top:10px;">Cancel</button>
+    </div>
+
+    <button onclick="showProfileEdit()" style="background:#0b84ee;">Edit Info</button>
   </div>
 </div>
 <!-- PRIVACY POLICY TAB -->
@@ -143,17 +158,31 @@ function openTab(tabName) {
   document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
 }
 
-// EDIT PROFILE — NOW SENDS UPDATED INFO TO GOOGLE SHEETS
-function editProfile() {
-  const firstName = prompt("First name:", localStorage.getItem('user_first_name') || '');
-  const lastName = prompt("Last name:", localStorage.getItem('user_last_name') || '');
-  const phone = prompt("Phone number:", localStorage.getItem('user_phone_verified') || '');
-  const email = prompt("Email (optional):", localStorage.getItem('user_email') || '');
-  if (phone && phone.replace(/[^0-9]/g,'').length >= 10) {
-    localStorage.setItem('user_first_name', firstName || '');
-    localStorage.setItem('user_last_name', lastName || '');
-    localStorage.setItem('user_phone_verified', phone.replace(/[^0-9]/g,''));
-    localStorage.setItem('user_email', email || '');
+// PROFILE FUNCTIONS
+function showProfileEdit() {
+  document.getElementById('profile-edit-form').style.display = 'block';
+  // Pre-fill form
+  document.getElementById('edit-first-name').value = localStorage.getItem('user_first_name') || '';
+  document.getElementById('edit-last-name').value = localStorage.getItem('user_last_name') || '';
+  document.getElementById('edit-phone').value = localStorage.getItem('user_phone_verified') || '';
+  document.getElementById('edit-email').value = localStorage.getItem('user_email') || '';
+}
+
+function cancelProfileEdit() {
+  document.getElementById('profile-edit-form').style.display = 'none';
+}
+
+function saveProfileEdit() {
+  const firstName = document.getElementById('edit-first-name').value.trim();
+  const lastName = document.getElementById('edit-last-name').value.trim();
+  const phone = document.getElementById('edit-phone').value.replace(/[^0-9]/g,'');
+  const email = document.getElementById('edit-email').value.trim();
+
+  if (phone.length >= 10) {
+    localStorage.setItem('user_first_name', firstName);
+    localStorage.setItem('user_last_name', lastName);
+    localStorage.setItem('user_phone_verified', phone);
+    localStorage.setItem('user_email', email);
 
     // SEND UPDATED PROFILE TO MAKE.COM
     const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
@@ -163,7 +192,7 @@ function editProfile() {
         device_id: deviceId,
         first_name: firstName || 'none',
         last_name: lastName || 'none',
-        phone_verified: phone.replace(/[^0-9]/g,''),
+        phone_verified: phone,
         email: email || 'none',
         city: localStorage.getItem('user_city') || 'unknown',
         state: localStorage.getItem('user_state') || 'unknown',
@@ -174,12 +203,13 @@ function editProfile() {
     });
 
     alert('Profile updated!');
-    location.reload();
-  } else if (phone) {
-    alert('Valid phone required');
+    document.getElementById('profile-edit-form').style.display = 'none';
+    loadProfile(); // refresh display
+  } else {
+    alert('Valid phone number required');
   }
 }
-// LOAD PROFILE ON OPEN
+
 function loadProfile() {
   document.getElementById('profile-first-name').textContent = localStorage.getItem('user_first_name') || 'Not set';
   document.getElementById('profile-last-name').textContent = localStorage.getItem('user_last_name') || 'Not set';
