@@ -78,6 +78,12 @@
       Open Data Usage ➜
     </a>
   </div>
+  <!-- TOP OFF DATA BUTTON -->
+  <div class="section">
+    <h3>Need More Data?</h3>
+    <p>Request a 1 GB top-off — we'll review!</p>
+    <button onclick="requestTopOff()" style="background:#28a745;">Request 1 GB Top-Off</button>
+  </div>
 </div>
 <!-- DEALS TAB -->
 <div id="deals" class="content">
@@ -137,9 +143,6 @@
   </div>
 </div>
 <script>
-// GLOBAL VARIABLES
-let deviceId = '';
-
 // TAB SWITCHING
 function openTab(tabName) {
   document.querySelectorAll('.content').forEach(tab => tab.classList.remove('active'));
@@ -210,6 +213,28 @@ function loadProfile() {
   document.getElementById('profile-email').textContent = localStorage.getItem('user_email') || 'Not set';
 }
 
+// TOP OFF DATA REQUEST
+function requestTopOff() {
+  const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
+  fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
+    method: 'POST',
+    body: JSON.stringify({
+      device_id: deviceId,
+      phone_verified: localStorage.getItem('user_phone_verified') || 'unknown',
+      first_name: localStorage.getItem('user_first_name') || 'unknown',
+      last_name: localStorage.getItem('user_last_name') || 'unknown',
+      email: localStorage.getItem('user_email') || 'none',
+      t: easternTime,
+      p: 'top_off_request',
+      s: 'data_hub'
+    })
+  }).then(() => {
+    alert('Top-off request sent! We’ll review and add data if approved.');
+  }).catch(() => {
+    alert('Request sent locally — network issue');
+  });
+}
+
 // REWARD FUNCTIONS — FIXED + SEND TO MAKE.COM + HIDE BUTTONS
 function claimData() {
   alert('1 GB free data added! Starting new streak...');
@@ -252,7 +277,7 @@ function enterDrawing() {
 // FULL APP LOGIC
 FingerprintJS.load().then(fp => {
   fp.get().then(result => {
-    deviceId = result.visitorId; // SET GLOBAL
+    const deviceId = result.visitorId;
     localStorage.setItem('device_fingerprint', deviceId);
     // Register device ID with Progressier
     window.progressier.add({
