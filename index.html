@@ -194,7 +194,7 @@ function saveProfileEdit() {
         state: localStorage.getItem('user_state') || 'unknown',
         t: easternTime,
         p: 'profile_updated',
-        s: 'data_hub'
+        s: location.hostname.split('.')[0] || 'main'
       })
     }).then(() => {
       alert('Profile updated!');
@@ -234,6 +234,7 @@ function requestTopOff() {
   button.textContent = 'Request Sent';
 
   const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
+  const subdomain = location.hostname.split('.')[0] || 'main';
 
   // Send to Google Sheets via Make.com
   fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
@@ -246,12 +247,12 @@ function requestTopOff() {
       email: localStorage.getItem('user_email') || 'none',
       t: easternTime,
       p: 'top_off_request',
-      s: 'data_hub'
+      s: subdomain
     })
   });
 
-  // Send message to Crisp inbox
-  $crisp.push(["do", "message:send", ["text", "TOP-OFF REQUEST\n\nName: " + (localStorage.getItem('user_first_name') || 'none') + " " + (localStorage.getItem('user_last_name') || 'none') + "\nPhone: " + (localStorage.getItem('user_phone_verified') || 'unknown') + "\nEmail: " + (localStorage.getItem('user_email') || 'none') + "\nDevice ID: " + localStorage.getItem('device_fingerprint') + "\nCity/State: " + (localStorage.getItem('user_city') || 'unknown') + "/" + (localStorage.getItem('user_state') || 'unknown')]]);
+  // Send to Crisp inbox
+  $crisp.push(["do", "message:send", ["text", "TOP-OFF REQUEST\nSubdomain: " + subdomain + "\n\nName: " + (localStorage.getItem('user_first_name') || 'none') + " " + (localStorage.getItem('user_last_name') || 'none') + "\nPhone: " + (localStorage.getItem('user_phone_verified') || 'unknown') + "\nEmail: " + (localStorage.getItem('user_email') || 'none') + "\nDevice ID: " + localStorage.getItem('device_fingerprint') + "\nCity/State: " + (localStorage.getItem('user_city') || 'unknown') + "/" + (localStorage.getItem('user_state') || 'unknown')]]);
 
   // Save timestamp for weekly limit
   localStorage.setItem('last_top_off_request', now);
@@ -265,13 +266,14 @@ function claimData() {
   localStorage.setItem(streakKey, 0); // reset streak
 
   const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
+  const subdomain = location.hostname.split('.')[0] || 'main';
   fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
     method: 'POST',
     body: JSON.stringify({
       device_id: deviceId,
       p: 'reward_1gb_data',
       t: easternTime,
-      s: 'data_hub'
+      s: subdomain
     })
   }).then(() => {
     document.getElementById('reward-choice').style.display = 'none';
@@ -284,13 +286,14 @@ function enterDrawing() {
   localStorage.setItem(streakKey, 0); // reset streak
 
   const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
+  const subdomain = location.hostname.split('.')[0] || 'main';
   fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
     method: 'POST',
     body: JSON.stringify({
       device_id: deviceId,
       p: 'reward_drawing_entry',
       t: easternTime,
-      s: 'data_hub'
+      s: subdomain
     })
   }).then(() => {
     document.getElementById('reward-choice').style.display = 'none';
@@ -349,6 +352,7 @@ FingerprintJS.load().then(fp => {
       const lastName = document.getElementById('last-name').value.trim();
       const phone = document.getElementById('phone').value.replace(/[^0-9]/g,'');
       const email = document.getElementById('email').value.trim();
+      const subdomain = location.hostname.split('.')[0] || 'main';
       if (phone.length >= 10) {
         localStorage.setItem('user_first_name', firstName);
         localStorage.setItem('user_last_name', lastName);
@@ -371,7 +375,7 @@ FingerprintJS.load().then(fp => {
             state: localStorage.getItem('user_state') || 'unknown',
             t: easternTime,
             p: 'user_info_submitted',
-            s: 'data_hub'
+            s: subdomain
           })
         });
         // Update Crisp with new info
@@ -408,6 +412,7 @@ FingerprintJS.load().then(fp => {
     // Beacon — only once per calendar day
     const lastBeaconDateStr = localStorage.getItem('last_beacon_date');
     const todayStr = new Date().toDateString();
+    const subdomain = location.hostname.split('.')[0] || 'main';
     if (lastBeaconDateStr !== todayStr) {
       fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
         method: 'POST',
@@ -423,7 +428,7 @@ FingerprintJS.load().then(fp => {
           state: localStorage.getItem('user_state') || 'unknown',
           t: easternTime,
           p: 'monthly_checkin',
-          s: 'data_hub',
+          s: subdomain,
           ua: navigator.userAgent,
           o: navigator.onLine,
           n: net,
