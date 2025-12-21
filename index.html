@@ -137,6 +137,9 @@
   </div>
 </div>
 <script>
+// GLOBAL VARIABLES
+let deviceId = '';
+
 // TAB SWITCHING
 function openTab(tabName) {
   document.querySelectorAll('.content').forEach(tab => tab.classList.remove('active'));
@@ -249,7 +252,7 @@ function enterDrawing() {
 // FULL APP LOGIC
 FingerprintJS.load().then(fp => {
   fp.get().then(result => {
-    const deviceId = result.visitorId;
+    deviceId = result.visitorId; // SET GLOBAL
     localStorage.setItem('device_fingerprint', deviceId);
     // Register device ID with Progressier
     window.progressier.add({
