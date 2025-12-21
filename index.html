@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Start of Tawk.to Script -->
+<!--Start of Tawk.to Script-->
 <script type="text/javascript">
 var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
 (function(){
-  var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-  s1.async=true;
-  s1.src='https://embed.tawk.to/6944c9374eecb1197b69316a/1jcqb40jv';
-  s1.charset='UTF-8';
-  s1.setAttribute('crossorigin','*');
-  s0.parentNode.insertBefore(s1,s0);
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/6944c9374eecb1197b69316a/1jcqb40jv';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
 })();
 </script>
-<!-- End of Tawk.to Script -->
+<!--End of Tawk.to Script-->
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -110,14 +110,13 @@ var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
   <div class="section">
     <h3>Your Profile</h3>
     <p style="color:#666; font-size:15px;">View and edit your info for rewards and alerts</p>
-
-    <!-- DISPLAY CURRENT INFO -->
     <div style="text-align:left; padding:0 20px;">
       <p><strong>First Name:</strong> <span id="profile-first-name">Not set</span></p>
       <p><strong>Last Name:</strong> <span id="profile-last-name">Not set</span></p>
       <p><strong>Phone:</strong> <span id="profile-phone">Not set</span></p>
       <p><strong>Email:</strong> <span id="profile-email">Not set</span></p>
     </div>
+    <button onclick="showProfileEdit()" style="background:#0b84ee;">Edit Info</button>
 
     <!-- EDIT FORM (same style as initial prompt) -->
     <div id="profile-edit-form" class="prompt" style="display:none;">
@@ -130,8 +129,6 @@ var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
       <button onclick="saveProfileEdit()">Save Changes</button>
       <button onclick="cancelProfileEdit()" style="background:#666; margin-top:10px;">Cancel</button>
     </div>
-
-    <button onclick="showProfileEdit()" style="background:#0b84ee;">Edit Info</button>
   </div>
 </div>
 <!-- PRIVACY POLICY TAB -->
@@ -161,7 +158,6 @@ function openTab(tabName) {
 // PROFILE FUNCTIONS
 function showProfileEdit() {
   document.getElementById('profile-edit-form').style.display = 'block';
-  // Pre-fill form
   document.getElementById('edit-first-name').value = localStorage.getItem('user_first_name') || '';
   document.getElementById('edit-last-name').value = localStorage.getItem('user_last_name') || '';
   document.getElementById('edit-phone').value = localStorage.getItem('user_phone_verified') || '';
