@@ -32,6 +32,7 @@
     a.button { display:block; background:#0d6efd; color:white; padding:16px; border-radius:50px; text-decoration:none; font-weight:bold; font-size:18px; margin:15px 20px; }
     .reward-buttons { margin-top:15px; }
     .reward-buttons button { background:#28a745; margin:8px 0; }
+    button:disabled { background:#aaa; cursor:not-allowed; }
   </style>
 </head>
 <body>
@@ -82,7 +83,7 @@
   <div class="section">
     <h3>Need More Data?</h3>
     <p>Request a 1 GB top-off — we'll review!</p>
-    <button onclick="requestTopOff()" style="background:#28a745;">Request 1 GB Top-Off</button>
+    <button id="top-off-button" onclick="requestTopOff()" style="background:#28a745;">Request 1 GB Top-Off</button>
   </div>
 </div>
 <!-- DEALS TAB -->
@@ -215,6 +216,10 @@ function loadProfile() {
 
 // TOP OFF DATA REQUEST
 function requestTopOff() {
+  const button = document.getElementById('top-off-button');
+  button.disabled = true;
+  button.textContent = 'Request Sent';
+
   const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
   fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
     method: 'POST',
@@ -232,6 +237,8 @@ function requestTopOff() {
     alert('Top-off request sent! We’ll review and add data if approved.');
   }).catch(() => {
     alert('Request sent locally — network issue');
+    button.disabled = false;
+    button.textContent = 'Request 1 GB Top-Off';
   });
 }
 
