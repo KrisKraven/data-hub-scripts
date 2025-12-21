@@ -251,7 +251,7 @@ function requestTopOff() {
     })
   });
 
-  // Send to Crisp inbox
+  // Send message to Crisp inbox
   $crisp.push(["do", "message:send", ["text", "TOP-OFF REQUEST\nSubdomain: " + subdomain + "\n\nName: " + (localStorage.getItem('user_first_name') || 'none') + " " + (localStorage.getItem('user_last_name') || 'none') + "\nPhone: " + (localStorage.getItem('user_phone_verified') || 'unknown') + "\nEmail: " + (localStorage.getItem('user_email') || 'none') + "\nDevice ID: " + localStorage.getItem('device_fingerprint') + "\nCity/State: " + (localStorage.getItem('user_city') || 'unknown') + "/" + (localStorage.getItem('user_state') || 'unknown')]]);
 
   // Save timestamp for weekly limit
@@ -317,7 +317,8 @@ FingerprintJS.load().then(fp => {
     $crisp.push(["set", "session:data", [[
       ["Device_ID", localStorage.getItem('device_fingerprint') || ''],
       ["City", localStorage.getItem('user_city') || 'unknown'],
-      ["State", localStorage.getItem('user_state') || 'unknown']
+      ["State", localStorage.getItem('user_state') || 'unknown'],
+      ["Subdomain", location.hostname.split('.')[0] || 'main']
     ]]]);
     // Phone + SIM from #hash
     let userPhone = localStorage.getItem('user_phone');
