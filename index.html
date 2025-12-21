@@ -203,10 +203,10 @@ function loadProfile() {
   document.getElementById('profile-email').textContent = localStorage.getItem('user_email') || 'Not set';
 }
 
-// REWARD FUNCTIONS
+// REWARD FUNCTIONS — FIXED + SEND TO MAKE.COM + HIDE BUTTONS
 function claimData() {
   alert('1 GB free data added! Starting new streak...');
-  localStorage.setItem(streakKey, 0);
+  localStorage.setItem(streakKey, 0); // reset streak
 
   const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
   fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
@@ -225,7 +225,7 @@ function claimData() {
 
 function enterDrawing() {
   alert('Entered into $50 drawing! Starting new streak...');
-  localStorage.setItem(streakKey, 0);
+  localStorage.setItem(streakKey, 0); // reset streak
 
   const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
   fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
