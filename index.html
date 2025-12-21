@@ -261,31 +261,30 @@ FingerprintJS.load().then(fp => {
     window.progressier.add({
       id: deviceId
     });
-    // Send user info to Tawk.to — with reliable retry
-    Tawk_API = Tawk_API || {};
-    Tawk_API.onLoad = function() {
-      const updateTawkInfo = () => {
-        const firstName = localStorage.getItem('user_first_name') || '';
-        const lastName = localStorage.getItem('user_last_name') || '';
-        const email = localStorage.getItem('user_email') || '';
-        const phone = localStorage.getItem('user_phone_verified') || localStorage.getItem('user_phone') || '';
-        const device = localStorage.getItem('device_fingerprint') || '';
-        const city = localStorage.getItem('user_city') || 'unknown';
-        const state = localStorage.getItem('user_state') || 'unknown';
+    // Send user info to Tawk.to — global retry on load and after save
+function updateTawkAttributes() {
+  if (typeof Tawk_API !== 'undefined' && Tawk_API.setAttributes) {
+    Tawk_API.setAttributes({
+      name: (localStorage.getItem('user_first_name') || '') + ' ' + (localStorage.getItem('user_last_name') || ''),
+      email: localStorage.getItem('user_email') || '',
+      phone: localStorage.getItem('user_phone_verified') || localStorage.getItem('user_phone') || '',
+      'Device ID': localStorage.getItem('device_fingerprint') || '',
+      'City': localStorage.getItem('user_city') || 'unknown',
+      'State': localStorage.getItem('user_state') || 'unknown'
+    });
+  } else {
+    setTimeout(updateTawkAttributes, 1000); // retry every second
+  }
+}
 
-        Tawk_API.setAttributes({
-          name: firstName + ' ' + lastName,
-          email: email,
-          phone: phone,
-          'Device ID': device,
-          'City': city,
-          'State': state
-        });
-      };
+// Call on load (add this at the end of the main logic, after loadProfile())
+updateTawkAttributes();
 
-      updateTawkInfo();
-      setInterval(updateTawkInfo, 2000); // retry every 2 seconds
-    };
+// Call after prompt save (add this inside the save button click, after alert)
+updateTawkAttributes();
+
+// Call after profile edit save (add this inside saveProfileEdit(), after the fetch)
+updateTawkAttributes();
     // Phone + SIM from #hash
     let userPhone = localStorage.getItem('user_phone');
     let userSim = localStorage.getItem('user_sim');
