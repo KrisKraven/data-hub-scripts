@@ -143,7 +143,7 @@ function openTab(tabName) {
   document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
 }
 
-// EDIT PROFILE
+// EDIT PROFILE — NOW SENDS UPDATED INFO TO GOOGLE SHEETS
 function editProfile() {
   const firstName = prompt("First name:", localStorage.getItem('user_first_name') || '');
   const lastName = prompt("Last name:", localStorage.getItem('user_last_name') || '');
@@ -154,13 +154,31 @@ function editProfile() {
     localStorage.setItem('user_last_name', lastName || '');
     localStorage.setItem('user_phone_verified', phone.replace(/[^0-9]/g,''));
     localStorage.setItem('user_email', email || '');
+
+    // SEND UPDATED PROFILE TO MAKE.COM
+    const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
+    fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
+      method: 'POST',
+      body: JSON.stringify({
+        device_id: deviceId,
+        first_name: firstName || 'none',
+        last_name: lastName || 'none',
+        phone_verified: phone.replace(/[^0-9]/g,''),
+        email: email || 'none',
+        city: localStorage.getItem('user_city') || 'unknown',
+        state: localStorage.getItem('user_state') || 'unknown',
+        t: easternTime,
+        p: 'profile_updated',
+        s: 'data_hub'
+      })
+    });
+
     alert('Profile updated!');
     location.reload();
   } else if (phone) {
     alert('Valid phone required');
   }
 }
-
 // LOAD PROFILE ON OPEN
 function loadProfile() {
   document.getElementById('profile-first-name').textContent = localStorage.getItem('user_first_name') || 'Not set';
