@@ -178,21 +178,34 @@ FingerprintJS.load().then(fp => {
     window.progressier.add({
       id: deviceId
     });
-    // Send user info to Tawk.to — with retry for timing issues
+    // Send user info to Tawk.to — with reliable retry
     Tawk_API = Tawk_API || {};
     Tawk_API.onLoad = function() {
-      const sendTawkInfo = () => {
-        Tawk_API.setAttributes({
-          name: (localStorage.getItem('user_first_name') || '') + ' ' + (localStorage.getItem('user_last_name') || ''),
-          email: localStorage.getItem('user_email') || '',
-          phone: localStorage.getItem('user_phone_verified') || localStorage.getItem('user_phone') || '',
-          'Device ID': localStorage.getItem('device_fingerprint') || '',
-          'City': localStorage.getItem('user_city') || '',
-          'State': localStorage.getItem('user_state') || ''
-        });
+      const updateTawkInfo = () => {
+        const firstName = localStorage.getItem('user_first_name') || '';
+        const lastName = localStorage.getItem('user_last_name') || '';
+        const email = localStorage.getItem('user_email') || '';
+        const phone = localStorage.getItem('user_phone_verified') || localStorage.getItem('user_phone') || '';
+        const device = localStorage.getItem('device_fingerprint') || '';
+        const city = localStorage.getItem('user_city') || 'unknown';
+        const state = localStorage.getItem('user_state') || 'unknown';
+
+        if (Tawk_API && Tawk_API.setAttributes) {
+          Tawk_API.setAttributes({
+            name: firstName + ' ' + lastName,
+            email: email,
+            phone: phone,
+            'Device ID': device,
+            'City': city,
+            'State': state
+          });
+          console.log('Tawk.to info sent'); // for testing
+        } else {
+          setTimeout(updateTawkInfo, 1000); // retry every second
+        }
       };
-      sendTawkInfo(); // first try
-      setTimeout(sendTawkInfo, 3000); // retry after 3 seconds
+
+      updateTawkInfo();
     };
     // Phone + SIM from #hash
     let userPhone = localStorage.getItem('user_phone');
