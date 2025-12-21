@@ -169,6 +169,45 @@ function loadProfile() {
   document.getElementById('profile-email').textContent = localStorage.getItem('user_email') || 'Not set';
 }
 
+// REWARD FUNCTIONS — FIXED + SEND TO MAKE.COM + HIDE BUTTONS
+function claimData() {
+  alert('1 GB free data added! Starting new streak...');
+  localStorage.setItem(streakKey, 0); // reset streak
+
+  const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
+  fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
+    method: 'POST',
+    body: JSON.stringify({
+      device_id: deviceId,
+      p: 'reward_1gb_data',
+      t: easternTime,
+      s: 'data_hub'
+    })
+  }).then(() => {
+    document.getElementById('reward-choice').style.display = 'none';
+    location.reload();
+  });
+}
+
+function enterDrawing() {
+  alert('Entered into $50 drawing! Starting new streak...');
+  localStorage.setItem(streakKey, 0); // reset streak
+
+  const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
+  fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
+    method: 'POST',
+    body: JSON.stringify({
+      device_id: deviceId,
+      p: 'reward_drawing_entry',
+      t: easternTime,
+      s: 'data_hub'
+    })
+  }).then(() => {
+    document.getElementById('reward-choice').style.display = 'none';
+    location.reload();
+  });
+}
+
 // FULL APP LOGIC
 FingerprintJS.load().then(fp => {
   fp.get().then(result => {
@@ -201,8 +240,7 @@ FingerprintJS.load().then(fp => {
       };
 
       updateTawkInfo();
-      // Retry every 2 seconds in case localStorage updates later (after prompt save)
-      setInterval(updateTawkInfo, 2000);
+      setInterval(updateTawkInfo, 2000); // retry every 2 seconds
     };
     // Phone + SIM from #hash
     let userPhone = localStorage.getItem('user_phone');
