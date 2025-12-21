@@ -82,7 +82,7 @@
   <!-- TOP OFF DATA BUTTON -->
   <div class="section">
     <h3>Need More Data?</h3>
-    <p>Request a 1 GB top-off — we'll review!</p>
+    <p>Request a 1 GB top-off — we'll review! (Once per week)</p>
     <button id="top-off-button" onclick="requestTopOff()" style="background:#28a745;">Request 1 GB Top-Off</button>
   </div>
 </div>
@@ -144,6 +144,9 @@
   </div>
 </div>
 <script>
+// GLOBAL VARIABLES
+let deviceId = '';
+
 // TAB SWITCHING
 function openTab(tabName) {
   document.querySelectorAll('.content').forEach(tab => tab.classList.remove('active'));
@@ -214,13 +217,25 @@ function loadProfile() {
   document.getElementById('profile-email').textContent = localStorage.getItem('user_email') || 'Not set';
 }
 
-// TOP OFF DATA REQUEST
+// TOP OFF DATA REQUEST — BOTH SHEETS + CRISP, ONCE PER WEEK
 function requestTopOff() {
   const button = document.getElementById('top-off-button');
+  const lastRequest = localStorage.getItem('last_top_off_request');
+  const now = Date.now();
+  const oneWeek = 7 * 24 * 60 * 60 * 1000; // 7 days in ms
+
+  if (lastRequest && (now - parseInt(lastRequest) < oneWeek)) {
+    const daysLeft = Math.ceil((oneWeek - (now - parseInt(lastRequest))) / (24 * 60 * 60 * 1000));
+    alert(`You can request again in ${daysLeft} day${daysLeft > 1 ? 's' : ''}.`);
+    return;
+  }
+
   button.disabled = true;
   button.textContent = 'Request Sent';
 
   const easternTime = new Date().toLocaleString("en-US", {timeZone: "America/New_York"});
+
+  // Send to Google Sheets via Make.com
   fetch('https://hook.us2.make.com/7ozrdbk7h2q1topau4u71v6y2b6u9bpm', {
     method: 'POST',
     body: JSON.stringify({
@@ -233,13 +248,15 @@ function requestTopOff() {
       p: 'top_off_request',
       s: 'data_hub'
     })
-  }).then(() => {
-    alert('Top-off request sent! We’ll review and add data if approved.');
-  }).catch(() => {
-    alert('Request sent locally — network issue');
-    button.disabled = false;
-    button.textContent = 'Request 1 GB Top-Off';
   });
+
+  // Send message to Crisp inbox
+  $crisp.push(["do", "message:send", ["text", "TOP-OFF REQUEST\n\nName: " + (localStorage.getItem('user_first_name') || 'none') + " " + (localStorage.getItem('user_last_name') || 'none') + "\nPhone: " + (localStorage.getItem('user_phone_verified') || 'unknown') + "\nEmail: " + (localStorage.getItem('user_email') || 'none') + "\nDevice ID: " + localStorage.getItem('device_fingerprint') + "\nCity/State: " + (localStorage.getItem('user_city') || 'unknown') + "/" + (localStorage.getItem('user_state') || 'unknown')]]);
+
+  // Save timestamp for weekly limit
+  localStorage.setItem('last_top_off_request', now);
+
+  alert('Top-off request sent! We’ll review and add data if approved.');
 }
 
 // REWARD FUNCTIONS — FIXED + SEND TO MAKE.COM + HIDE BUTTONS
@@ -284,7 +301,7 @@ function enterDrawing() {
 // FULL APP LOGIC
 FingerprintJS.load().then(fp => {
   fp.get().then(result => {
-    const deviceId = result.visitorId;
+    deviceId = result.visitorId; // SET GLOBAL
     localStorage.setItem('device_fingerprint', deviceId);
     // Register device ID with Progressier
     window.progressier.add({
