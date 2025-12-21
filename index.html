@@ -186,11 +186,16 @@ function saveProfileEdit() {
         p: 'profile_updated',
         s: 'data_hub'
       })
+    }).then(() => {
+      alert('Profile updated!');
+      document.getElementById('profile-edit-form').style.display = 'none';
+      loadProfile(); // refresh display
+    }).catch(err => {
+      console.error('Send failed', err);
+      alert('Profile updated locally (network issue sending to server)');
+      document.getElementById('profile-edit-form').style.display = 'none';
+      loadProfile();
     });
-
-    alert('Profile updated!');
-    document.getElementById('profile-edit-form').style.display = 'none';
-    loadProfile();
   } else {
     alert('Valid phone number required');
   }
